@@ -1,5 +1,6 @@
 package com.meow.assistant;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -45,8 +46,8 @@ public class WebUIActivity extends AppCompatActivity {
         settings.setAllowFileAccess(true);
         settings.setAllowContentAccess(true);
 
-        // 注入桥接接口（保持和 HTML 里的名字一致）
-        webView.addJavascriptInterface(new WebBridge(), "AndroidBridge");
+        // 注入桥接接口，把当前的 Context 传进去
+        webView.addJavascriptInterface(new WebBridge(this), "AndroidBridge");
 
         // 防止网页跳转到外部浏览器
         webView.setWebViewClient(new WebViewClient());
@@ -61,51 +62,69 @@ public class WebUIActivity extends AppCompatActivity {
         getWindow().setStatusBarColor(Color.TRANSPARENT);
     }
 
-    // 核心通信桥梁
+    // 核心通信桥梁（使用 Context 传参，解决所有找不到符号的报错）
     private class WebBridge {
+        private Context mContext;
+
+        public WebBridge(Context context) {
+            this.mContext = context;
+        }
+
         @JavascriptInterface
         public void openAccessibilitySettings() {
-            WebUIActivity.this.runOnUiThread(() -> {
-                Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                WebUIActivity.this.startActivity(intent);
+            ((Activity) mContext).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                    mContext.startActivity(intent);
+                }
             });
         }
 
         @JavascriptInterface
         public void openBatterySettings() {
-            WebUIActivity.this.runOnUiThread(() -> {
-                Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-                WebUIActivity.this.startActivity(intent);
+            ((Activity) mContext).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+                    mContext.startActivity(intent);
+                }
             });
         }
 
         @JavascriptInterface
         public void openNotificationSettings() {
-            WebUIActivity.this.runOnUiThread(() -> {
-                Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
-                intent.putExtra(Settings.EXTRA_APP_PACKAGE, WebUIActivity.this.getPackageName());
-                WebUIActivity.this.startActivity(intent);
+            ((Activity) mContext).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                    intent.putExtra(Settings.EXTRA_APP_PACKAGE, mContext.getPackageName());
+                    mContext.startActivity(intent);
+                }
             });
         }
 
         @JavascriptInterface
         public void openAutoStartSettings() {
-            WebUIActivity.this.runOnUiThread(() -> {
-                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                intent.setData(Uri.parse("package:" + WebUIActivity.this.getPackageName()));
-                WebUIActivity.this.startActivity(intent);
+            ((Activity) mContext).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    intent.setData(Uri.parse("package:" + mContext.getPackageName()));
+                    mContext.startActivity(intent);
+                }
             });
         }
 
         @JavascriptInterface
         public void setBackgroundMode(boolean enabled) {
-            WebUIActivity.this.getSharedPreferences("meow_prefs", Context.MODE_PRIVATE).edit().putBoolean("bg_mode_hide", enabled).apply();
+            mContext.getSharedPreferences("meow_prefs", Context.MODE_PRIVATE).edit().putBoolean("bg_mode_hide", enabled).apply();
         }
 
         @JavascriptInterface
         public String getInstalledApps() {
             try {
-                PackageManager pm = WebUIActivity.this.getPackageManager();
+                PackageManager pm = mContext.getPackageManager();
                 Intent intent = new Intent(Intent.ACTION_MAIN, null);
                 intent.addCategory(Intent.CATEGORY_LAUNCHER);
                 List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
@@ -115,7 +134,7 @@ public class WebUIActivity extends AppCompatActivity {
 
                 for (ResolveInfo info : resolveInfos) {
                     String pkgName = info.activityInfo.packageName;
-                    if (pkgName.equals(WebUIActivity.this.getPackageName())) continue; // 排除自己
+                    if (pkgName.equals(mContext.getPackageName())) continue; // 排除自己
                     if (addedPkgs.contains(pkgName)) continue;
 
                     ApplicationInfo appInfo = pm.getApplicationInfo(pkgName, 0);
@@ -134,14 +153,19 @@ public class WebUIActivity extends AppCompatActivity {
 
         @JavascriptInterface
         public void saveConfig(String json) {
-            WebUIActivity.this.getSharedPreferences("meow_prefs", Context.MODE_PRIVATE).edit().putString("weai_config", json).apply();
+            mContext.getSharedPreferences("meow_prefs", Context.MODE_PRIVATE).edit().putString("weai_config", json).apply();
             
-            WebUIActivity.this.runOnUiThread(() -> Toast.makeText(WebUIActivity.this, "规则已保存", Toast.LENGTH_SHORT).show());
+            ((Activity) mContext).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(mContext, "规则已保存", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
 
         @JavascriptInterface
         public String loadConfig() {
-            return WebUIActivity.this.getSharedPreferences("meow_prefs", Context.MODE_PRIVATE).getString("weai_config", "");
+            return mContext.getSharedPreferences("meow_prefs", Context.MODE_PRIVATE).getString("weai_config", "");
         }
     }
 }
