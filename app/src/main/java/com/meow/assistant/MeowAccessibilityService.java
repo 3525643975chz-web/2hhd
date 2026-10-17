@@ -38,7 +38,6 @@ public class MeowAccessibilityService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         if (event.getEventType() != AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED) return;
         
-        // 总开关关了，直接拦截
         if (!config.enabled) return;
         if (isProcessing) return; 
 
@@ -54,10 +53,20 @@ public class MeowAccessibilityService extends AccessibilityService {
 
         if (currentText.isEmpty()) return;
 
-        // 防套娃拦截
-        if (currentText.equals(lastProcessedText)) {
-            return; 
+        // 读取系统给的“修改前”和“修改后”的文本
+        CharSequence beforeSeq = event.getBeforeText();
+        String beforeText = beforeSeq != null ? beforeSeq.toString() : "";
+
+        // 【修复4】如果用户正在输入拼音（英文字母增加），先放过，等选字了（变成中文）再处理
+        if (currentText.length() > beforeText.length()) {
+            String addedText = currentText.substring(beforeText.length());
+            if (addedText.matches("[a-zA-Z]+")) { // 如果新增的是纯英文字母（拼音阶段）
+                return;
+            }
         }
+
+        // 防套娃拦截
+        if (currentText.equals(lastProcessedText)) return; 
 
         // 删除动作拦截
         if (currentText.length() < lastProcessedText.length() && lastProcessedText.contains(currentText)) {
@@ -72,7 +81,7 @@ public class MeowAccessibilityService extends AccessibilityService {
             return;
         }
 
-        // 开始替换
+        // 执行替换
         isProcessing = true;
         lastProcessedText = processedText; 
         
@@ -83,12 +92,11 @@ public class MeowAccessibilityService extends AccessibilityService {
         arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, processedText);
         boolean success = node.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
         
-        // 兼容微信等顽固应用，失败则用剪贴板
+        // 兼容微信
         if (!success) {
             ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
             ClipData clip = ClipData.newPlainText("weaitext", processedText);
             clipboard.setPrimaryClip(clip);
-            
             node.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
             node.performAction(AccessibilityNodeInfo.ACTION_PASTE);
             
@@ -97,7 +105,7 @@ public class MeowAccessibilityService extends AccessibilityService {
             selectionArgs.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT, processedText.length());
             node.performAction(AccessibilityNodeInfo.ACTION_SET_SELECTION, selectionArgs);
         } else {
-            // 恢复光标位置
+            // 恢复光标
             if (selectionStart >= 0 && selectionEnd >= 0) {
                 Bundle selectionArgs = new Bundle();
                 int newStart = Math.min(selectionStart + (processedText.length() - currentText.length()), processedText.length());
@@ -108,7 +116,7 @@ public class MeowAccessibilityService extends AccessibilityService {
             }
         }
         
-        handler.postDelayed(() -> isProcessing = false, 500);
+        handler.postDelayed(() -> isProcessing = false, 400);
     }
 
     private AccessibilityNodeInfo findEditText(AccessibilityNodeInfo node) {
