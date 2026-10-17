@@ -17,35 +17,36 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // 直接使用代码创建 WebView，不需要去改 xml 布局文件了
         webView = new WebView(this);
+        // 注意这里：如果你非要用 XML 布局，可以改成 setContentView(R.layout.activity_main);
         setContentView(webView);
 
         WebSettings settings = webView.getSettings();
-        settings.setJavaScriptEnabled(true); // 开启 JS
-        settings.setDomStorageEnabled(true); // 开启 LocalStorage
-        settings.setAllowFileAccess(true);   // 允许读取本地文件
+        settings.setJavaScriptEnabled(true); 
+        settings.setDomStorageEnabled(true); 
+        settings.setAllowFileAccess(true);   
 
-        // 注入 JS 接口，名字叫 Android，前端用 window.Android 调用
-        webView.addJavascriptInterface(new WebAppInterface(this), "Android");
+        // 修复报错：传入 MainActivity.this
+        webView.addJavascriptInterface(new WebAppInterface(MainActivity.this), "Android");
         webView.setWebViewClient(new WebViewClient());
 
-        // 加载你放在 assets 里的精美页面
+        // 加载 assets 里的前端页面
         webView.loadUrl("file:///android_asset/index.html");
     }
 
-    // ================= 内部类：JS 桥接器 =================
-    public class WebAppInterface {
+    // 抽出独立类，彻底避免上下文报错
+    public static class WebAppInterface {
         private Context mContext;
-        WebAppInterface(Context c) { mContext = c; }
+        
+        public WebAppInterface(Context c) { 
+            mContext = c; 
+        }
 
         @JavascriptInterface
         public void saveConfig(String jsonString) {
-            // 保存前端传来的 JSON 配置
             mContext.getSharedPreferences("weai_config", Context.MODE_PRIVATE)
                     .edit().putString("config_json", jsonString).apply();
             
-            // 发送广播或启动服务，通知无障碍服务重新加载配置（如果需要热更新）
             Intent intent = new Intent(mContext, MeowAccessibilityService.class);
             intent.setAction("RELOAD_CONFIG");
             mContext.startService(intent);
@@ -53,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
 
         @JavascriptInterface
         public String loadConfig() {
-            // 给前端返回保存的配置
             return mContext.getSharedPreferences("weai_config", Context.MODE_PRIVATE)
                     .getString("config_json", "");
         }
