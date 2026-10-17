@@ -33,8 +33,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // 创建通知渠道与权限
+        // 1. 创建通知渠道
         createNotificationChannel();
+        // 2. 申请通知权限 (Android 13+)
         requestNotificationPermission();
 
         webView = new WebView(this);
@@ -47,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         settings.setAllowFileAccess(true);   
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
-        // 注入接口
+        // 注入 JS 接口
         webView.addJavascriptInterface(new WebAppInterface(MainActivity.this), "Android");
         webView.setWebViewClient(new WebViewClient());
         webView.loadUrl("file:///android_asset/index.html");
@@ -57,7 +58,9 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("weaitext_channel", "WeaiText 运行通知", NotificationManager.IMPORTANCE_LOW);
             NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(channel);
+            if (manager != null) {
+                manager.createNotificationChannel(channel);
+            }
         }
     }
 
@@ -74,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         
         public WebAppInterface(Context c) { mContext = c; }
 
-        // 暴力抓取所有应用
+        // ================== 获取应用列表 ==================
         @JavascriptInterface
         public String getInstalledApps() {
             JSONArray jsonArray = new JSONArray();
@@ -100,10 +103,32 @@ public class MainActivity extends AppCompatActivity {
             return jsonArray.toString();
         }
 
+        // ================== 数据存取与保活服务控制 ==================
         @JavascriptInterface
         public void saveConfig(String jsonString) {
             mContext.getSharedPreferences("weai_config", Context.MODE_PRIVATE)
                     .edit().putString("config_json", jsonString).apply();
+            
+            // 根据前端传来的总开关状态，控制前台保活服务的启动/停止
+            try {
+                org.json.JSONObject json = new org.json.JSONObject(jsonString);
+                boolean isModuleActive = json.optBoolean("enabled", false);
+                Intent serviceIntent = new Intent(mContext, KeepAliveService.class);
+                
+                if (isModuleActive) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        mContext.startForegroundService(serviceIntent);
+                    } else {
+                        mContext.startService(serviceIntent);
+                    }
+                } else {
+                    mContext.stopService(serviceIntent);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            // 通知无障碍服务重新加载配置
             Intent intent = new Intent(mContext, MeowAccessibilityService.class);
             intent.setAction("RELOAD_CONFIG");
             mContext.startService(intent);
@@ -115,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
                     .getString("config_json", "");
         }
 
+        // ================== 权限跳转 ==================
         @JavascriptInterface
         public void openAccessibilitySettings() {
             try {
