@@ -4,8 +4,11 @@
 
     <!-- 【必须】获取手机应用列表权限 -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesAllowed" />
-    <!-- 【必须】通知权限 -->
+    <!-- 【必须】通知权限 (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- 【必须】前台服务保活权限 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <application
         android:allowBackup="true"
@@ -15,6 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         
+        <!-- 主界面 -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -25,7 +29,7 @@
             </intent-filter>
         </activity>
 
-        <!-- 注册无障碍服务 -->
+        <!-- 无障碍服务 -->
         <service
             android:name=".MeowAccessibilityService"
             android:exported="true"
@@ -37,5 +41,15 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
         </service>
+
+        <!-- 前台保活服务 (防止系统杀后台) -->
+        <service
+            android:name=".KeepAliveService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="keep text replacement running" />
+        </service>
+
     </application>
 </manifest>
