@@ -8,11 +8,11 @@
         :root {
             --text-main: #111;
             --text-sub: #555;
-            /* 提升不透明度，解决 WebView 穿透看不清字的问题，同时保留玻璃质感 */
-            --glass-bg: rgba(255, 255, 255, 0.7); 
-            --glass-bg-light: rgba(255, 255, 255, 0.8); 
+            /* 纯净磨砂底色（完全还原你的原版） */
+            --glass-bg: rgba(255, 255, 255, 0.35); 
+            --glass-bg-light: rgba(255, 255, 255, 0.45); 
             /* 果冻粉 */
-            --jelly-pink: rgba(240, 98, 146, 0.8); 
+            --jelly-pink: rgba(240, 98, 146, 0.7); 
             --pink: #FF4B8B;
             --pink-light: #FF7BA9;
             --ease: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -20,11 +20,9 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
-        /* 增加了一层白色遮罩，防止背景图太花干扰文字 */
         body { 
             width: 100%; height: 100vh; overflow: hidden; 
-            background-color: #FFF0F5; 
-            background-image: linear-gradient(rgba(255, 240, 245, 0.4), rgba(255, 240, 245, 0.4)), url('background.jpg'); 
+            background-color: #FFF0F5; background-image: url('background.jpg'); 
             background-size: cover; background-position: center; background-attachment: fixed;
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; 
             color: var(--text-main); user-select: none;
@@ -44,8 +42,8 @@
             backdrop-filter: blur(25px) saturate(150%);
             -webkit-backdrop-filter: blur(25px) saturate(150%);
             border-radius: 32px; 
-            border: 1px solid rgba(255, 255, 255, 0.8); /* 强化白边 */
-            box-shadow: 0 8px 20px rgba(0,0,0,0.04); 
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04);
             position: relative; 
             transition: transform 0.3s var(--ease);
         }
@@ -56,7 +54,7 @@
             backdrop-filter: blur(30px) saturate(150%);
             -webkit-backdrop-filter: blur(30px) saturate(150%);
             border-radius: 32px; 
-            border: 1px solid rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.6);
             box-shadow: 0 8px 20px rgba(0,0,0,0.04);
         }
 
@@ -85,7 +83,7 @@
 
         /* 卡片通用 */
         .card { padding: 22px 24px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 16px; }
-        .card-icon { width: 46px; height: 46px; border-radius: 16px; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; margin-right: 16px; color: var(--pink); flex-shrink: 0;}
+        .card-icon { width: 46px; height: 46px; border-radius: 16px; background: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; margin-right: 16px; color: var(--pink); flex-shrink: 0;}
         .card-text h3 { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
         .card-text p { font-size: 12px; color: var(--text-sub); font-weight: 600; transition: 0.3s; }
 
@@ -113,13 +111,13 @@
         .btn-del:active { transform: scale(0.8); }
         
         /* 领地页 */
-        .search { background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.8); border-radius: 20px; padding: 16px 20px; margin-bottom: 20px; display: flex; backdrop-filter: blur(20px); }
+        .search { background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.6); border-radius: 20px; padding: 16px 20px; margin-bottom: 20px; display: flex; backdrop-filter: blur(20px); }
         .search input { border: none; background: transparent; outline: none; width: 100%; font-size: 15px; font-weight: 600; color: var(--text-main);}
         
         .app-card { 
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.3);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             border-radius: 24px;
             padding: 18px 20px;
             margin-bottom: 12px;
@@ -135,9 +133,9 @@
         /* 勾选圈（纯净版） */
         .check-circle { 
             width: 32px; height: 32px; border-radius: 50%; 
-            border: 2.5px solid rgba(0,0,0,0.1); 
+            border: 2.5px solid rgba(255,255,255,0.9); 
             display: flex; align-items: center; justify-content: center; 
-            background: rgba(255,255,255,0.5); 
+            background: rgba(255,255,255,0.2); 
             transition: transform 0.5s var(--super-spring), background 0.2s;
             flex-shrink: 0;
         }
@@ -164,14 +162,14 @@
 
         /* 关于页 */
         .about-hero { padding: 44px 24px; text-align: center; margin-bottom: 24px; }
-        .avatar { width: 96px; height: 96px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.8); margin: 0 auto 16px; overflow: hidden; background: rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; font-size: 36px; }
+        .avatar { width: 96px; height: 96px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.6); margin: 0 auto 16px; overflow: hidden; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 36px; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
         .about-hero h2 { font-size: 26px; font-weight: 900; margin-bottom: 6px; letter-spacing: 0.5px; }
         .about-hero p { font-size: 13px; color: var(--text-sub); font-weight: 600; margin-bottom: 14px; }
-        .version-badge { display: inline-block; background: rgba(255,255,255,0.6); padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; color: var(--text-sub); }
+        .version-badge { display: inline-block; background: rgba(255,255,255,0.4); padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; color: var(--text-sub); }
         
         .info-list { padding: 8px 20px; }
-        .info-item { display: flex; justify-content: space-between; padding: 20px 0; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 15px; font-weight: 700; }
+        .info-item { display: flex; justify-content: space-between; padding: 20px 0; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 15px; font-weight: 700; }
         .info-item:last-child { border: none; }
         .info-item span:last-child { color: var(--text-sub); font-weight: 600; }
         
@@ -184,11 +182,11 @@
         .nav {
             position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
             width: 88%; max-width: 420px; height: 72px; display: flex; justify-content: space-around; align-items: center;
-            background: rgba(255, 255, 255, 0.75); 
+            background: rgba(255, 255, 255, 0.45); 
             backdrop-filter: blur(40px) saturate(180%); 
             -webkit-backdrop-filter: blur(40px) saturate(180%);
             border-radius: 36px; 
-            border: 1.5px solid rgba(255, 255, 255, 0.9); 
+            border: 1.5px solid rgba(255, 255, 255, 0.8); 
             box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
             z-index: 100;
             touch-action: none; 
@@ -208,7 +206,6 @@
             z-index: 3; 
             cursor: pointer; transition: transform 0.3s var(--ease);
             pointer-events: auto; 
-            box-shadow: 0 4px 12px rgba(255, 75, 139, 0.3);
         }
         .add-btn:active { transform: scale(0.8) rotate(90deg); }
         .add-btn svg { width: 32px; height: 32px; }
@@ -218,22 +215,22 @@
         .modal.active { opacity: 1; pointer-events: auto; }
         .modal-box { 
             width: 85%; max-width: 340px; 
-            background: rgba(255, 255, 255, 0.85); 
+            background: rgba(255, 255, 255, 0.6); 
             backdrop-filter: blur(40px) saturate(150%); 
             padding: 30px 24px; border-radius: 36px; 
-            border: 1px solid rgba(255,255,255,0.9);
+            border: 1px solid rgba(255,255,255,0.8);
             box-shadow: 0 24px 50px rgba(0,0,0,0.1); 
             transform: scale(0.85) translateY(20px); transition: 0.4s var(--ease); max-height: 80vh; display: flex; flex-direction: column; 
         }
         .modal.active .modal-box { transform: scale(1) translateY(0); }
         
-        .modal-input { width: 100%; padding: 16px; border-radius: 18px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.8); margin-bottom: 14px; font-size: 15px; outline: none; font-weight: 600; color: var(--text-main); transition: 0.3s; }
-        .modal-input:focus { background: #FFF; border-color: var(--pink-light); }
+        .modal-input { width: 100%; padding: 16px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.6); background: rgba(255,255,255,0.4); margin-bottom: 14px; font-size: 15px; outline: none; font-weight: 600; color: var(--text-main); transition: 0.3s; }
+        .modal-input:focus { background: rgba(255,255,255,0.8); border-color: var(--pink-light); }
         
         .btn-ok { width: 100%; padding: 16px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.8); font-weight: 800; font-size: 16px; background: var(--jelly-pink); color: #FFF; margin-top: 16px; cursor: pointer; transition: 0.3s; }
         .btn-ok:active { transform: scale(0.95); }
 
-        .suffix-input { width: 100%; padding: 16px; border-radius: 18px; border: 1.5px solid var(--pink-light); background: rgba(255,255,255,0.8); font-size: 15px; outline: none; font-weight: 600; color: var(--text-main); margin-bottom: 14px; }
+        .suffix-input { width: 100%; padding: 16px; border-radius: 18px; border: 1.5px solid var(--pink-light); background: rgba(255,255,255,0.2); font-size: 15px; outline: none; font-weight: 600; color: var(--text-main); margin-bottom: 14px; }
         
         .btn-copy { background: var(--jelly-pink); border: 1px solid rgba(255,255,255,0.6); color: #FFF; padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer; transition: transform 0.3s; }
         .btn-copy:active { transform: scale(0.9); }
@@ -318,7 +315,7 @@
         <div class="scroll" id="apps-scroll">
             <div class="header">
                 <div class="title" style="display: flex; align-items: center; gap: 16px;">
-                    <span style="font-size: 26px; cursor: pointer; font-weight: 900;" onclick="go('tools', 3)">←</span>
+                    <span style="font-size: 26px; cursor: pointer; font-weight: 900;" onclick="go('tools', 2)">←</span>
                     <h1 style="font-size:28px;">目标领地</h1>
                 </div>
                 <div style="font-size:14px; font-weight:800; color:var(--text-main);" id="apps-page-count">已选 0 个</div>
@@ -470,7 +467,7 @@
             <p style="color:var(--text-sub); font-size:14px; line-height:1.6; text-align:center; margin-bottom:20px; font-weight:600;">
                 如果在使用中遇到 Bug，或者想要新的魔法功能，欢迎联系本喵：
             </p>
-            <div style="display:flex; justify-content:center; align-items:center; background:rgba(255,255,255,0.6); padding:16px; border-radius:18px; border:1px solid rgba(255,255,255,0.8);">
+            <div style="display:flex; justify-content:center; align-items:center; background:rgba(255,255,255,0.4); padding:16px; border-radius:18px; border:1px solid rgba(255,255,255,0.6);">
                 <b style="color:var(--pink); font-size:16px; font-family:monospace;">3525643975@qq.com</b>
                 <button class="btn-copy" onclick="copyEmail()" style="margin-left:16px;">一键复制</button>
             </div>
@@ -481,9 +478,28 @@
     <div class="modal" id="licenseModal">
         <div class="modal-box">
             <h2 style="text-align: center; margin-bottom: 16px; font-weight: 900; font-size: 22px;">开源许可</h2>
-            <div style="background:rgba(255,255,255,0.5); padding:16px; border-radius:16px; font-size:12px; color:var(--text-sub); flex:1; overflow-y:auto; line-height:1.6; text-align:left; white-space: pre-wrap; border:1px solid rgba(255,255,255,0.8);">
+            <div style="background:rgba(255,255,255,0.3); padding:16px; border-radius:16px; font-size:12px; color:var(--text-sub); flex:1; overflow-y:auto; line-height:1.6; text-align:left; white-space: pre-wrap; border:1px solid rgba(255,255,255,0.6);">
 MIT License
-...
+
+Copyright (c) 2026 Asia.C
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
             </div>
             <button class="btn-ok" onclick="closeModal('licenseModal')">关闭</button>
         </div>
@@ -521,10 +537,10 @@ MIT License
             bgEnabled: false
         };
 
+        // 页面映射
         const pages = ['home', 'rules', 'tools', 'apps', 'about'];
         let currentPageIndex = 0;
 
-        // 【原生桥接核心】
         const NativeBridge = window.Android || null;
 
         function syncToNative() {
@@ -568,7 +584,7 @@ MIT License
             navTimer = setTimeout(() => {
                 navIsDragging = true;
                 if(navigator.vibrate) navigator.vibrate(20);
-                navContainer.style.background = 'rgba(255, 255, 255, 0.85)'; 
+                navContainer.style.background = 'rgba(255, 255, 255, 0.65)'; 
             }, 200);
         });
 
@@ -591,13 +607,13 @@ MIT License
         navContainer.addEventListener('pointerup', () => {
             clearTimeout(navTimer);
             navIsDragging = false;
-            navContainer.style.background = 'rgba(255, 255, 255, 0.75)';
+            navContainer.style.background = 'rgba(255, 255, 255, 0.45)';
         });
 
         navContainer.addEventListener('pointercancel', () => {
             clearTimeout(navTimer);
             navIsDragging = false;
-            navContainer.style.background = 'rgba(255, 255, 255, 0.75)';
+            navContainer.style.background = 'rgba(255, 255, 255, 0.45)';
         });
 
         // ================= 交互逻辑 =================
@@ -611,6 +627,7 @@ MIT License
             const desc = document.getElementById('bgModeDesc');
             
             el.classList.toggle('on', state.bgEnabled);
+            
             if (state.bgEnabled) {
                 eyeOpen.style.display = 'none';
                 eyeClosed.style.display = 'block';
@@ -663,6 +680,7 @@ MIT License
             state.apps.forEach(app => {
                 if (keyword && !app.name.toLowerCase().includes(keyword) && !app.pkg.toLowerCase().includes(keyword)) return;
                 count++;
+                
                 const isSelected = state.targets.has(app.pkg) ? 'selected' : '';
                 html += `
                 <div class="app-card ${isSelected}" onclick="toggleApp('${app.pkg}', this)">
@@ -691,14 +709,14 @@ MIT License
                 element.classList.add('selected');
             }
             updateCounts(); 
-            syncToNative(); // 同步至原生
+            syncToNative();
         }
 
         function syncSuffix(val) {
             const suffix = val || '喵';
             document.getElementById('append-title').innerText = `后缀「${suffix}」`;
             document.getElementById('append-preview').innerText = `预览：今天很开心${suffix}`;
-            syncToNative(); // 同步至原生
+            syncToNative();
         }
 
         function toggleAppend() {
@@ -717,20 +735,20 @@ MIT License
                 desc.innerText = '关闭中';
                 icon.style.display = 'none';
             }
-            syncToNative(); // 同步至原生
+            syncToNative();
         }
 
         function deleteRule(index) {
             state.rules.splice(index, 1);
             renderRules();
-            syncToNative(); // 同步至原生
+            syncToNative();
         }
 
         function clearRules() {
             if (confirm('确定要清空所有规则吗？')) {
                 state.rules = [];
                 renderRules();
-                syncToNative(); // 同步至原生
+                syncToNative();
             }
         }
 
@@ -762,7 +780,7 @@ MIT License
             closeModal('addModal');
             renderRules(); 
             go('rules', 1);
-            syncToNative(); // 同步至原生
+            syncToNative();
         }
 
         function copyEmail() {
@@ -774,23 +792,12 @@ MIT License
             });
         }
 
-        // 【原生设置跳转】
-        function openAccessibilitySettings() {
-            if (NativeBridge) NativeBridge.openAccessibilitySettings();
-            else alert('请在 App 内使用此功能');
-        }
-        function openBatterySettings() {
-            if (NativeBridge) NativeBridge.openBatterySettings();
-            else alert('请在 App 内使用此功能');
-        }
-        function openAutoStartSettings() {
-            alert('不同手机自启动设置路径不同，请前往手机管家的应用管理开启');
-        }
-        function openNotificationSettings() {
-            alert('请前往系统设置 -> 通知管理，允许本应用发送通知');
-        }
+        function openAccessibilitySettings() { if (NativeBridge) NativeBridge.openAccessibilitySettings(); else alert('请在 App 内使用'); }
+        function openBatterySettings() { if (NativeBridge) NativeBridge.openBatterySettings(); else alert('请在 App 内使用'); }
+        function openAutoStartSettings() { alert('不同手机自启动设置路径不同，请前往手机管家的应用管理开启'); }
+        function openNotificationSettings() { alert('请前往系统设置 -> 通知管理，允许本应用发送通知'); }
 
-        // ================= 魔法点击光点特效 =================
+        // ================= 魔法点击特效 =================
         document.addEventListener('pointerdown', function(e) {
             const wave = document.createElement('div');
             wave.className = 'click-wave';
@@ -804,33 +811,24 @@ MIT License
 
         // ================= 页面加载初始化 =================
         window.onload = () => {
-            // 1. 从原生读取配置
             if (NativeBridge && NativeBridge.loadConfig) {
                 const savedConfig = NativeBridge.loadConfig();
                 if (savedConfig && savedConfig !== "") {
                     try {
                         const parsed = JSON.parse(savedConfig);
                         state.rules = parsed.rules || state.rules;
-                        if (parsed.targets && parsed.targets.length > 0) {
-                            state.targets = new Set(parsed.targets);
-                        }
+                        if (parsed.targets && parsed.targets.length > 0) state.targets = new Set(parsed.targets);
                         state.appendEnabled = parsed.appendEnabled !== undefined ? parsed.appendEnabled : true;
-                        if (parsed.suffix && document.getElementById('suffix-input')) {
-                            document.getElementById('suffix-input').value = parsed.suffix;
-                        }
-                    } catch(e) { console.error("Config parse error", e); }
+                        if (parsed.suffix) document.getElementById('suffix-input').value = parsed.suffix;
+                    } catch(e) {}
                 }
             }
-            
-            // 2. 初始化渲染 UI
             renderHome();
             toggleAppend(); 
             syncSuffix(document.getElementById('suffix-input').value);
             document.getElementById('bgToggle').classList.remove('on');
             document.getElementById('eyeOpen').style.display = 'block';
             document.getElementById('eyeClosed').style.display = 'none';
-
-            // 3. 页面启动强制同步一次，确保原生端有数据
             syncToNative();
         };
     </script>
