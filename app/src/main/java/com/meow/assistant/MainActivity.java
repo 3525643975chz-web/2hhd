@@ -18,7 +18,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         
         webView = new WebView(this);
-        // 注意这里：如果你非要用 XML 布局，可以改成 setContentView(R.layout.activity_main);
         setContentView(webView);
 
         WebSettings settings = webView.getSettings();
@@ -26,15 +25,12 @@ public class MainActivity extends AppCompatActivity {
         settings.setDomStorageEnabled(true); 
         settings.setAllowFileAccess(true);   
 
-        // 修复报错：传入 MainActivity.this
         webView.addJavascriptInterface(new WebAppInterface(MainActivity.this), "Android");
         webView.setWebViewClient(new WebViewClient());
 
-        // 加载 assets 里的前端页面
         webView.loadUrl("file:///android_asset/index.html");
     }
 
-    // 抽出独立类，彻底避免上下文报错
     public static class WebAppInterface {
         private Context mContext;
         
