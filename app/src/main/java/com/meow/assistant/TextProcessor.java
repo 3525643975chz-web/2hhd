@@ -11,7 +11,6 @@ public class TextProcessor {
             }
         }
         
-        // 这里必须判断 appendEnabled 是否为 true
         if (config.appendEnabled && config.suffix != null && !config.suffix.isEmpty()) {
             if (!result.endsWith(config.suffix)) {
                 result = result + config.suffix;
