@@ -17,8 +17,8 @@ public class CatConfig {
 
     public List<Rule> rules = new ArrayList<>();
     public Set<String> targets = new HashSet<>();
-    public boolean appendEnabled = true;
-    public String suffix = "喵~";
+    public boolean appendEnabled = false; // 默认关闭
+    public String suffix = "喵";
 
     public static CatConfig load(Context ctx) {
         CatConfig cfg = new CatConfig();
@@ -27,8 +27,17 @@ public class CatConfig {
         if (!jsonStr.isEmpty()) {
             try {
                 JSONObject json = new JSONObject(jsonStr);
-                cfg.appendEnabled = json.optBoolean("appendEnabled", true);
-                cfg.suffix = json.optString("suffix", "喵~");
+                
+                // 兼容前端传来的结构
+                if (json.has("appendMagic")) {
+                    JSONObject magic = json.getJSONObject("appendMagic");
+                    cfg.appendEnabled = magic.optBoolean("enabled", false);
+                    cfg.suffix = magic.optString("suffix", "喵");
+                } else {
+                    // 兼容旧版
+                    cfg.appendEnabled = json.optBoolean("appendEnabled", false);
+                    cfg.suffix = json.optString("suffix", "喵");
+                }
 
                 JSONArray targetsArr = json.optJSONArray("targets");
                 if (targetsArr != null) {
