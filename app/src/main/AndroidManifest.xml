@@ -7,11 +7,10 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
-    <!-- 🌟 核心：向系统申请查看所有已安装应用的权限，不加这个死活看不到微信 -->
+    <!-- 🌟 最暴力的全量查询声明 -->
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
         </intent>
     </queries>
 
@@ -20,7 +19,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="WeaiText"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar"> <!-- 换成原生安全主题，绝不报错 -->
+        android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar"> 
         
         <activity
             android:name=".MainActivity"
@@ -33,7 +32,6 @@
             </intent-filter>
         </activity>
 
-        <!-- 喵喵助手核心的无障碍服务保留 -->
         <service
             android:name=".MeowAccessibilityService"
             android:exported="true"
