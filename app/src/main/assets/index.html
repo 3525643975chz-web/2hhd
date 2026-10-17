@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>WeaiText</title>
+    <style>
+        :root {
+            --text-main: #000000;
+            --glass-bg: rgba(255, 255, 255, 0.35); 
+            --magic-pink-trans: rgba(255, 75, 139, 0.65);
+            --magic-pink: #FF4B8B;
+            --bounce-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
+        html, body { 
+            width: 100%; height: 100%; overflow: hidden; 
+            background-color: #FFF0F5; 
+            background-image: url('background.jpg'); 
+            background-size: cover;
+            background-position: center;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; 
+            color: var(--text-main); user-select: none; 
+        }
+
+        /* 网页淡入动画 */
+        .app-container { 
+            width: 100%; height: 100%; display: flex; flex-direction: column;
+            padding: calc(40px + env(safe-area-inset-top)) 20px calc(40px + env(safe-area-inset-bottom)); 
+            overflow-y: auto;
+            opacity: 0;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        @keyframes fadeIn { 0% { opacity: 0; transform: scale(0.98); } 100% { opacity: 1; transform: scale(1); } }
+
+        /* 核心：白玻璃质感 */
+        .liquid-glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px) saturate(160%); 
+            -webkit-backdrop-filter: blur(16px) saturate(160%);
+            border-radius: 28px; 
+            border: 1.5px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        h1 { font-size: 36px; font-weight: 900; margin-bottom: 24px; color: #000; text-shadow: 0 2px 10px rgba(255,255,255,0.8); }
+
+        /* 果冻开关 */
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; }
+        .toggle {
+            width: 64px; height: 34px; border-radius: 17px;
+            background: rgba(0,0,0,0.15); border: 2px solid transparent;
+            position: relative; transition: 0.3s; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .toggle.on { background: var(--magic-pink-trans); border-color: rgba(255,255,255,0.95); }
+        .toggle::after {
+            content: ''; position: absolute; top: 2px; left: 2px; width: 26px; height: 26px;
+            border-radius: 50%; background: #FFF; transition: transform 0.4s var(--bounce-easing);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .toggle.on::after { transform: translateX(30px); }
+
+        .btn {
+            width: 100%; padding: 16px; border-radius: 18px;
+            background: var(--magic-pink-trans); color: #FFF; font-weight: bold; font-size: 16px;
+            text-align: center; border: 2px solid rgba(255,255,255,0.9);
+            box-shadow: 0 4px 15px rgba(255,75,139,0.2);
+            margin-top: 10px; transition: transform 0.2s;
+        }
+        .btn:active { transform: scale(0.95); }
+        
+        /* 列表卡片 */
+        .app-list { flex: 1; overflow-y: auto; }
+        .app-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px; background: rgba(255,255,255,0.4); border-radius: 16px;
+            margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1>WeaiText</h1>
+
+        <div class="liquid-glass">
+            <div class="toggle-row" onclick="toggleMain()">
+                <div>
+                    <h2 style="font-size: 22px; margin-bottom: 6px;">魔法引擎</h2>
+                    <p style="font-size: 13px; color: #333; font-weight: 600;">开启后自动进行喵化替换</p>
+                </div>
+                <div class="toggle on" id="mainToggle"></div>
+            </div>
+        </div>
+
+        <div class="liquid-glass" style="flex: 1; display: flex; flex-direction: column;">
+            <h3 style="margin-bottom: 15px; font-size: 18px;">生效领地（应用）</h3>
+            <div class="app-list" id="appList">
+                <div style="text-align: center; color: #666; margin-top: 20px;">正在获取应用列表...</div>
+            </div>
+        </div>
+
+        <button class="btn" onclick="openAccessibility()">去开启无障碍服务</button>
+    </div>
+
+    <script>
+        let isOn = true;
+        function toggleMain() {
+            isOn = !isOn;
+            document.getElementById('mainToggle').classList.toggle('on', isOn);
+        }
+
+        function openAccessibility() {
+            if (window.AndroidBridge && window.AndroidBridge.openAccessibilitySettings) {
+                window.AndroidBridge.openAccessibilitySettings();
+            } else {
+                alert("请在系统设置中手动开启无障碍服务");
+            }
+        }
+
+        // 启动时获取应用列表
+        window.onload = function() {
+            setTimeout(() => {
+                if (window.AndroidBridge && window.AndroidBridge.getInstalledApps) {
+                    try {
+                        const appsStr = window.AndroidBridge.getInstalledApps();
+                        const apps = JSON.parse(appsStr);
+                        const listEl = document.getElementById('appList');
+                        
+                        if (apps.length === 0) {
+                            listEl.innerHTML = '<div style="text-align: center; color: #666;">未获取到应用，请检查权限</div>';
+                            return;
+                        }
+
+                        let html = '';
+                        apps.forEach(app => {
+                            html += `
+                            <div class="app-item">
+                                <div>
+                                    <div style="font-weight: 800; font-size: 15px;">${app.name}</div>
+                                    <div style="font-size: 11px; color: #555; font-family: monospace;">${app.pkg}</div>
+                                </div>
+                                <div style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #ccc;"></div>
+                            </div>`;
+                        });
+                        listEl.innerHTML = html;
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+            }, 300);
+        };
+    </script>
+</body>
+</html>
