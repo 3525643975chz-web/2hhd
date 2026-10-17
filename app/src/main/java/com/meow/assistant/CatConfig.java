@@ -20,7 +20,6 @@ public class CatConfig {
     public boolean appendEnabled = true;
     public String suffix = "喵~";
 
-    // 新增：供原有的 ClipboardRewriter 等类调用的静态方法
     public static CatConfig load(Context ctx) {
         CatConfig cfg = new CatConfig();
         SharedPreferences prefs = ctx.getSharedPreferences("weai_config", Context.MODE_PRIVATE);
