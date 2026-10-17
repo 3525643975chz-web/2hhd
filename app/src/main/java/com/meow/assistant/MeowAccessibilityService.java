@@ -12,7 +12,7 @@ public class MeowAccessibilityService extends AccessibilityService {
     private boolean isProcessing = false;
     private Handler handler = new Handler(Looper.getMainLooper());
     
-    // 核心防御：记录最后一次替换后的文本
+    // 记录上一次生效的完整文本（带后缀的）
     private String lastProcessedText = "";
 
     @Override
@@ -48,29 +48,30 @@ public class MeowAccessibilityService extends AccessibilityService {
         if (text == null) return;
         String currentText = text.toString();
 
-        // ================= 终极防死循环 =================
-        // 1. 如果当前文本等于我们刚刚替换完的文本，说明是我们自己触发的，直接放过
+        // ================= 终极防死循环 & 防删除回弹 =================
+        // 1. 如果当前文本等于我们上次处理完的文本，说明是我们自己触发的，直接放过
         if (currentText.equals(lastProcessedText)) {
             return; 
         }
 
-        // 2. 如果用户正在按退格删除（当前长度比上次短，且包含关系），立刻放过，绝不自动补后缀
+        // 2. 如果用户正在按退格删除（当前字数比上次少，且剩下的内容是上次内容的一部分），放过
         if (currentText.length() < lastProcessedText.length() && lastProcessedText.contains(currentText)) {
-            lastProcessedText = currentText; // 更新记录
+            lastProcessedText = currentText; // 记录用户的删除动作
             return;
         }
 
+        // 3. 执行替换逻辑
         String processedText = TextProcessor.process(currentText, config);
 
-        // 3. 如果不需要替换，记录当前文本并退出
+        // 如果处理后没变化，更新记录并退出
         if (currentText.equals(processedText)) {
             lastProcessedText = currentText;
             return;
         }
 
-        // ================= 执行替换 =================
+        // 执行文字替换
         isProcessing = true;
-        lastProcessedText = processedText; // 提前记录预期结果
+        lastProcessedText = processedText; // 记录预期结果
 
         Bundle arguments = new Bundle();
         arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, processedText);
@@ -86,7 +87,7 @@ public class MeowAccessibilityService extends AccessibilityService {
         handler.postDelayed(() -> isProcessing = false, 300);
     }
 
-    // 向下寻找真正的输入框
+    // 向下寻找真正的输入框（兼容部分应用深层嵌套）
     private AccessibilityNodeInfo findEditText(AccessibilityNodeInfo node) {
         if (node == null) return null;
         if (node.isEditable()) return node;
