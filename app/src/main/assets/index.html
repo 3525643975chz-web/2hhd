@@ -3,108 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>WeaiText</title>
+    <title>WeaiText - 纯净磨砂版</title>
     <style>
         :root {
-            --text-main: #111; --text-sub: #555;
-            --glass-bg: rgba(255, 255, 255, 0.35); --glass-bg-light: rgba(255, 255, 255, 0.45); 
-            --jelly-pink: rgba(240, 98, 146, 0.7); --pink: #FF4B8B; --pink-light: #FF7BA9;
-            --ease: cubic-bezier(0.34, 1.56, 0.64, 1); --super-spring: cubic-bezier(0.2, 2.5, 0.4, 1); 
+            --text-main: #111;
+            --text-sub: #555;
+            /* 提升不透明度，解决 WebView 穿透看不清字的问题，同时保留玻璃质感 */
+            --glass-bg: rgba(255, 255, 255, 0.7); 
+            --glass-bg-light: rgba(255, 255, 255, 0.8); 
+            /* 果冻粉 */
+            --jelly-pink: rgba(240, 98, 146, 0.8); 
+            --pink: #FF4B8B;
+            --pink-light: #FF7BA9;
+            --ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --super-spring: cubic-bezier(0.2, 2.5, 0.4, 1); 
         }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body { width: 100%; height: 100vh; overflow: hidden; background-color: #FFF0F5; background-image: url('background.jpg'); background-size: cover; background-position: center; background-attachment: fixed; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; color: var(--text-main); user-select: none; }
-        .click-wave { position: fixed; border-radius: 50%; pointer-events: none; z-index: 9999; background: radial-gradient(circle, rgba(255, 75, 139, 0.3) 0%, rgba(255, 75, 139, 0) 70%); transform: translate(-50%, -50%) scale(0); animation: waveAnim 0.4s var(--ease) forwards; }
+        
+        /* 增加了一层白色遮罩，防止背景图太花干扰文字 */
+        body { 
+            width: 100%; height: 100vh; overflow: hidden; 
+            background-color: #FFF0F5; 
+            background-image: linear-gradient(rgba(255, 240, 245, 0.4), rgba(255, 240, 245, 0.4)), url('background.jpg'); 
+            background-size: cover; background-position: center; background-attachment: fixed;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; 
+            color: var(--text-main); user-select: none;
+        }
+
+        /* 魔法触摸光点 */
+        .click-wave {
+            position: fixed; border-radius: 50%; pointer-events: none; z-index: 9999;
+            background: radial-gradient(circle, rgba(255, 75, 139, 0.3) 0%, rgba(255, 75, 139, 0) 70%); 
+            transform: translate(-50%, -50%) scale(0); animation: waveAnim 0.4s var(--ease) forwards;
+        }
         @keyframes waveAnim { 0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(2); opacity: 0; } }
-        .glass { background: var(--glass-bg); backdrop-filter: blur(25px) saturate(150%); -webkit-backdrop-filter: blur(25px) saturate(150%); border-radius: 32px; border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 8px 20px rgba(0,0,0,0.04); position: relative; transition: transform 0.3s var(--ease); }
+
+        /* ================= 核心：极致纯净磨砂玻璃 ================= */
+        .glass {
+            background: var(--glass-bg); 
+            backdrop-filter: blur(25px) saturate(150%);
+            -webkit-backdrop-filter: blur(25px) saturate(150%);
+            border-radius: 32px; 
+            border: 1px solid rgba(255, 255, 255, 0.8); /* 强化白边 */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04); 
+            position: relative; 
+            transition: transform 0.3s var(--ease);
+        }
         .glass:active { transform: scale(0.97); }
-        .glass-list { background: var(--glass-bg-light); backdrop-filter: blur(30px) saturate(150%); -webkit-backdrop-filter: blur(30px) saturate(150%); border-radius: 32px; border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 8px 20px rgba(0,0,0,0.04); }
+        
+        .glass-list {
+            background: var(--glass-bg-light); 
+            backdrop-filter: blur(30px) saturate(150%);
+            -webkit-backdrop-filter: blur(30px) saturate(150%);
+            border-radius: 32px; 
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+        }
+
+        /* 页面路由 */
         .page { position: absolute; inset: 0; display: none; flex-direction: column; }
         .page.active { display: flex; animation: slideUp 0.35s var(--ease) forwards; }
         @keyframes slideUp { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
+        
         .scroll { flex: 1; overflow-y: auto; padding: calc(40px + env(safe-area-inset-top)) 20px calc(100px + env(safe-area-inset-bottom)) 20px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
         .scroll::-webkit-scrollbar { display: none; }
+        
         .title h1 { font-size: 38px; font-weight: 900; margin-bottom: 4px; }
         .title p { font-size: 12px; color: var(--pink); font-weight: 800; letter-spacing: 4px; }
         .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; }
+
+        /* 开关组件 */
         .toggle { width: 64px; height: 34px; border-radius: 17px; background: rgba(0,0,0,0.1); border: 2.5px solid rgba(255,255,255,0.9); position: relative; transition: 0.4s var(--super-spring); cursor: pointer; }
         .toggle::after { content: ''; position: absolute; top: 1.5px; left: 1.5px; width: 26px; height: 26px; border-radius: 50%; background: #FFF; transition: 0.4s var(--super-spring); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .toggle.on { background: var(--jelly-pink); border-color: #FFF; }
         .toggle.on::after { transform: translateX(30px); }
+        
         .toggle-sm { width: 52px; height: 28px; border-radius: 14px; background: rgba(0,0,0,0.1); border: 2.5px solid rgba(255,255,255,0.9); position: relative; transition: 0.4s var(--super-spring); cursor: pointer; }
         .toggle-sm::after { content: ''; position: absolute; top: 1px; left: 1px; width: 22px; height: 22px; border-radius: 50%; background: #FFF; transition: 0.4s var(--super-spring); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .toggle-sm.on { background: var(--jelly-pink); border-color: #FFF; }
         .toggle-sm.on::after { transform: translateX(24px); }
+
+        /* 卡片通用 */
         .card { padding: 22px 24px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 16px; }
-        .card-icon { width: 46px; height: 46px; border-radius: 16px; background: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; margin-right: 16px; color: var(--pink); flex-shrink: 0;}
+        .card-icon { width: 46px; height: 46px; border-radius: 16px; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; margin-right: 16px; color: var(--pink); flex-shrink: 0;}
         .card-text h3 { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
         .card-text p { font-size: 12px; color: var(--text-sub); font-weight: 600; transition: 0.3s; }
+
+        /* 首页 */
         .hub { padding: 30px 24px; margin-bottom: 20px; }
         .hub-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .hub-title h2 { font-size: 24px; font-weight: 900; margin-bottom: 6px; }
         .hub-title p { font-size: 13px; color: var(--text-sub); font-weight: 600; }
         .blessing { border-top: 1px solid rgba(0,0,0,0.06); padding-top: 18px; font-size: 14px; font-weight: 600; display: flex; gap: 8px; color: var(--text-main); }
+
         .wings { display: flex; gap: 16px; margin-bottom: 20px; }
         .wing { flex: 1; padding: 28px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; cursor: pointer; }
         .wing .icon { font-size: 38px; }
         .wing .row { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; }
         .badge { background: var(--jelly-pink); color: #FFF; font-size: 12px; font-weight: 900; padding: 3px 9px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.8); }
+
         .section-title { font-size: 15px; font-weight: 800; margin: 24px 0 12px 4px; color: var(--text-main); letter-spacing: 1px;}
+
+        /* 规则列表 */
         .list { padding: 8px 20px; }
         .item { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 15px; font-weight: 700; }
         .item:last-child { border: none; }
         .arrow { color: var(--pink); font-family: monospace; font-size: 18px;}
         .btn-del { color: var(--pink); font-size: 18px; font-weight: bold; padding: 8px; cursor: pointer; transition: 0.2s; }
         .btn-del:active { transform: scale(0.8); }
-        .search { background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.6); border-radius: 20px; padding: 16px 20px; margin-bottom: 20px; display: flex; backdrop-filter: blur(20px); }
+        
+        /* 领地页 */
+        .search { background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.8); border-radius: 20px; padding: 16px 20px; margin-bottom: 20px; display: flex; backdrop-filter: blur(20px); }
         .search input { border: none; background: transparent; outline: none; width: 100%; font-size: 15px; font-weight: 600; color: var(--text-main);}
-        .app-card { background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 24px; padding: 18px 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; transition: transform 0.2s, background 0.3s; cursor: pointer; }
+        
+        .app-card { 
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 24px;
+            padding: 18px 20px;
+            margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: transform 0.2s, background 0.3s;
+            cursor: pointer;
+        }
         .app-card:active { transform: scale(0.97); }
+        
         .app-name { font-size: 16px; font-weight: 800; margin-bottom: 4px; color: var(--text-main); }
         .app-pkg { font-size: 12px; color: var(--text-sub); font-family: "SF Mono", monospace; }
-        .check-circle { width: 32px; height: 32px; border-radius: 50%; border: 2.5px solid rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.2); transition: transform 0.5s var(--super-spring), background 0.2s; flex-shrink: 0; }
-        .app-card.selected .check-circle { background: var(--jelly-pink); border-color: #FFF; transform: scale(1.15); }
+
+        /* 勾选圈（纯净版） */
+        .check-circle { 
+            width: 32px; height: 32px; border-radius: 50%; 
+            border: 2.5px solid rgba(0,0,0,0.1); 
+            display: flex; align-items: center; justify-content: center; 
+            background: rgba(255,255,255,0.5); 
+            transition: transform 0.5s var(--super-spring), background 0.2s;
+            flex-shrink: 0;
+        }
+        .app-card.selected .check-circle { 
+            background: var(--jelly-pink); 
+            border-color: #FFF; 
+            transform: scale(1.15); 
+        }
         .check-circle svg { display: none; width: 18px; height: 18px; color: #FFF; }
-        .app-card.selected .check-circle svg { display: block; animation: explodeCheck 0.6s var(--super-spring) forwards; }
-        @keyframes explodeCheck { 0% { transform: scale(0) rotate(-90deg); opacity: 0; } 50% { transform: scale(1.5) rotate(10deg); opacity: 1; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+        .app-card.selected .check-circle svg { 
+            display: block; 
+            animation: explodeCheck 0.6s var(--super-spring) forwards; 
+        }
+        @keyframes explodeCheck { 
+            0% { transform: scale(0) rotate(-90deg); opacity: 0; } 
+            50% { transform: scale(1.5) rotate(10deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; } 
+        }
+
+        /* 工具页 */
         .tool-item { padding: 22px 24px; margin-bottom: 16px; display: flex; align-items: center; cursor: pointer; }
         .tool-arrow { color: #999; font-size: 22px; font-weight: 600; }
         .badge-pink { font-size: 12px; font-weight: 800; color: #FFF; background: var(--jelly-pink); padding: 5px 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.8); }
+
+        /* 关于页 */
         .about-hero { padding: 44px 24px; text-align: center; margin-bottom: 24px; }
-        .avatar { width: 96px; height: 96px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.6); margin: 0 auto 16px; overflow: hidden; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 36px; }
+        .avatar { width: 96px; height: 96px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.8); margin: 0 auto 16px; overflow: hidden; background: rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; font-size: 36px; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
         .about-hero h2 { font-size: 26px; font-weight: 900; margin-bottom: 6px; letter-spacing: 0.5px; }
         .about-hero p { font-size: 13px; color: var(--text-sub); font-weight: 600; margin-bottom: 14px; }
-        .version-badge { display: inline-block; background: rgba(255,255,255,0.4); padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; color: var(--text-sub); }
+        .version-badge { display: inline-block; background: rgba(255,255,255,0.6); padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; color: var(--text-sub); }
+        
         .info-list { padding: 8px 20px; }
-        .info-item { display: flex; justify-content: space-between; padding: 20px 0; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 15px; font-weight: 700; }
+        .info-item { display: flex; justify-content: space-between; padding: 20px 0; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 15px; font-weight: 700; }
         .info-item:last-child { border: none; }
         .info-item span:last-child { color: var(--text-sub); font-weight: 600; }
+        
         .action-card { padding: 22px 24px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .action-card h3 { font-size: 16px; font-weight: 800; margin-bottom: 4px; color: var(--text-main); }
         .action-card p { font-size: 12px; color: var(--text-sub); font-weight: 600; }
         .footer-text { text-align: center; margin-top: 40px; font-size: 12px; font-weight: 600; color: var(--text-sub); line-height: 1.8; }
-        .nav { position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); width: 88%; max-width: 420px; height: 72px; display: flex; justify-content: space-around; align-items: center; background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%); border-radius: 36px; border: 1.5px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 30px rgba(0,0,0,0.08); z-index: 100; touch-action: none; }
+
+        /* 底栏：长按滑动 + 磨砂质感 */
+        .nav {
+            position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
+            width: 88%; max-width: 420px; height: 72px; display: flex; justify-content: space-around; align-items: center;
+            background: rgba(255, 255, 255, 0.75); 
+            backdrop-filter: blur(40px) saturate(180%); 
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border-radius: 36px; 
+            border: 1.5px solid rgba(255, 255, 255, 0.9); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+            z-index: 100;
+            touch-action: none; 
+        }
+        
         .nav-btn { width: 50px; height: 100%; display: flex; align-items: center; justify-content: center; color: #666; z-index: 3; cursor: pointer; transition: 0.4s var(--super-spring); pointer-events: none; }
         .nav-btn.active { color: var(--pink); transform: translateY(-4px) scale(1.15); filter: drop-shadow(0 4px 8px rgba(255,75,139,0.4)); }
         .nav-btn svg { width: 26px; height: 26px; pointer-events: auto; }
-        .add-btn { width: 58px; height: 58px; border-radius: 50%; background: var(--jelly-pink); backdrop-filter: blur(10px); border: 2px solid rgba(255, 255, 255, 1); display: flex; align-items: center; justify-content: center; color: #FFF; z-index: 3; cursor: pointer; transition: transform 0.3s var(--ease); pointer-events: auto; }
+        
+        .add-btn { 
+            width: 58px; height: 58px; border-radius: 50%; 
+            background: var(--jelly-pink); 
+            backdrop-filter: blur(10px); 
+            border: 2px solid rgba(255, 255, 255, 1); 
+            display: flex; align-items: center; justify-content: center; 
+            color: #FFF; 
+            z-index: 3; 
+            cursor: pointer; transition: transform 0.3s var(--ease);
+            pointer-events: auto; 
+            box-shadow: 0 4px 12px rgba(255, 75, 139, 0.3);
+        }
         .add-btn:active { transform: scale(0.8) rotate(90deg); }
         .add-btn svg { width: 32px; height: 32px; }
+
+        /* 弹窗 */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.15); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; z-index: 200; opacity: 0; pointer-events: none; transition: 0.35s var(--ease); }
         .modal.active { opacity: 1; pointer-events: auto; }
-        .modal-box { width: 85%; max-width: 340px; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(40px) saturate(150%); padding: 30px 24px; border-radius: 36px; border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 24px 50px rgba(0,0,0,0.1); transform: scale(0.85) translateY(20px); transition: 0.4s var(--ease); max-height: 80vh; display: flex; flex-direction: column; }
+        .modal-box { 
+            width: 85%; max-width: 340px; 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(40px) saturate(150%); 
+            padding: 30px 24px; border-radius: 36px; 
+            border: 1px solid rgba(255,255,255,0.9);
+            box-shadow: 0 24px 50px rgba(0,0,0,0.1); 
+            transform: scale(0.85) translateY(20px); transition: 0.4s var(--ease); max-height: 80vh; display: flex; flex-direction: column; 
+        }
         .modal.active .modal-box { transform: scale(1) translateY(0); }
-        .modal-input { width: 100%; padding: 16px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.6); background: rgba(255,255,255,0.4); margin-bottom: 14px; font-size: 15px; outline: none; font-weight: 600; color: var(--text-main); transition: 0.3s; }
-        .modal-input:focus { background: rgba(255,255,255,0.8); border-color: var(--pink-light); }
+        
+        .modal-input { width: 100%; padding: 16px; border-radius: 18px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.8); margin-bottom: 14px; font-size: 15px; outline: none; font-weight: 600; color: var(--text-main); transition: 0.3s; }
+        .modal-input:focus { background: #FFF; border-color: var(--pink-light); }
+        
         .btn-ok { width: 100%; padding: 16px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.8); font-weight: 800; font-size: 16px; background: var(--jelly-pink); color: #FFF; margin-top: 16px; cursor: pointer; transition: 0.3s; }
         .btn-ok:active { transform: scale(0.95); }
-        .suffix-input { width: 100%; padding: 16px; border-radius: 18px; border: 1.5px solid var(--pink-light); background: rgba(255,255,255,0.2); font-size: 15px; outline: none; font-weight: 600; color: var(--text-main); margin-bottom: 14px; }
+
+        .suffix-input { width: 100%; padding: 16px; border-radius: 18px; border: 1.5px solid var(--pink-light); background: rgba(255,255,255,0.8); font-size: 15px; outline: none; font-weight: 600; color: var(--text-main); margin-bottom: 14px; }
+        
+        .btn-copy { background: var(--jelly-pink); border: 1px solid rgba(255,255,255,0.6); color: #FFF; padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer; transition: transform 0.3s; }
+        .btn-copy:active { transform: scale(0.9); }
     </style>
 </head>
 <body>
+
+    <!-- 1. 首页 -->
     <div id="p-home" class="page active">
         <div class="scroll">
             <div class="title" style="margin-bottom: 24px;"><h1>WeaiText</h1><p>CUTE MAGIC</p></div>
+            
             <div class="glass hub">
                 <div class="hub-top">
                     <div class="hub-title"><h2>喵喵出击！ 🐾</h2><p>魔法引擎运转中</p></div>
@@ -112,49 +253,72 @@
                 </div>
                 <div class="blessing"><span>✨</span> 全知全能的本喵已就位，祝您今天一切顺利！</div>
             </div>
+
             <div class="wings">
-                <div class="glass wing" onclick="go('rules', 1)"><div class="icon">🪄</div><div class="row">管理规则 <span class="badge" id="home-rule-count">0</span></div></div>
-                <div class="glass wing" onclick="go('apps', 3)"><div class="icon">🔮</div><div class="row">选择领地 <span class="badge" id="home-app-count">0</span></div></div>
+                <div class="glass wing" onclick="go('rules', 1)">
+                    <div class="icon">🪄</div><div class="row">管理规则 <span class="badge" id="home-rule-count">0</span></div>
+                </div>
+                <div class="glass wing" onclick="go('apps', 3)">
+                    <div class="icon">🔮</div><div class="row">选择领地 <span class="badge" id="home-app-count">0</span></div>
+                </div>
             </div>
+
             <div class="glass card" onclick="toggleBgMode()">
                 <div style="display:flex; align-items:center;">
-                    <div class="card-icon"><svg id="eyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:24px; height:24px;"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg><svg id="eyeClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:24px; height:24px; display: none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg></div>
-                    <div class="card-text"><h3>无痕模式</h3><p id="bgModeDesc">退出即隐身，不占用多任务</p></div>
+                    <div class="card-icon">
+                        <svg id="eyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <svg id="eyeClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px; display: none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                    </div>
+                    <div class="card-text">
+                        <h3>无痕模式</h3>
+                        <p id="bgModeDesc">退出即隐身，不占用多任务</p>
+                    </div>
                 </div>
                 <div class="toggle-sm" id="bgToggle"></div>
             </div>
+
             <div class="section-title">最近施展</div>
             <div class="glass-list list" id="home-recent-list"></div>
         </div>
     </div>
 
+    <!-- 2. 规则配置 -->
     <div id="p-rules" class="page">
         <div class="scroll">
             <div class="header">
                 <div class="title"><h1 style="font-size:28px;">规则配置</h1></div>
                 <div style="font-size:13px; font-weight:800; color:#FFF; background:var(--jelly-pink); padding:10px 18px; border-radius:16px; border:1.5px solid rgba(255,255,255,0.9); cursor:pointer;" onclick="clearRules()">清空全部</div>
             </div>
+
             <div class="glass card" style="margin-bottom: 12px;" onclick="toggleAppend()">
                 <div style="display:flex; align-items:center;">
-                    <div class="card-icon" id="tag-icon" style="display:flex;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px; height:24px;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg></div>
-                    <div class="card-text"><h3 id="append-title">后缀「喵~」</h3><p id="append-desc">已开启自动追加</p></div>
+                    <div class="card-icon" id="tag-icon" style="display:flex;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px; height:24px;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                    </div>
+                    <div class="card-text">
+                        <h3 id="append-title">后缀「喵~」</h3>
+                        <p id="append-desc">已开启自动追加</p>
+                    </div>
                 </div>
                 <div class="toggle-sm on" id="append-toggle"></div>
             </div>
+
             <div class="glass-list list" id="append-input-wrap" style="padding: 24px; margin-bottom: 24px;">
                 <input type="text" id="suffix-input" class="suffix-input" value="喵~" oninput="syncSuffix(this.value)">
                 <div style="font-size: 13px; color: var(--pink); font-weight: 800; padding-left: 4px;" id="append-preview">预览：今天很开心喵~</div>
             </div>
+
             <div class="section-title">已激活规则</div>
             <div class="glass-list list" id="rules-list"></div>
         </div>
     </div>
 
+    <!-- 3. 目标领地 -->
     <div id="p-apps" class="page">
-        <div class="scroll">
+        <div class="scroll" id="apps-scroll">
             <div class="header">
                 <div class="title" style="display: flex; align-items: center; gap: 16px;">
-                    <span style="font-size: 26px; cursor: pointer; font-weight: 900;" onclick="go('tools', 2)">←</span>
+                    <span style="font-size: 26px; cursor: pointer; font-weight: 900;" onclick="go('tools', 3)">←</span>
                     <h1 style="font-size:28px;">目标领地</h1>
                 </div>
                 <div style="font-size:14px; font-weight:800; color:var(--text-main);" id="apps-page-count">已选 0 个</div>
@@ -163,49 +327,133 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-sub)" stroke-width="2.5" style="width:22px; margin-right:10px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 <input type="text" id="search-input" placeholder="搜索应用..." oninput="renderApps()">
             </div>
+            
             <div id="apps-list"></div>
         </div>
     </div>
 
+    <!-- 4. 系统工具 -->
     <div id="p-tools" class="page">
         <div class="scroll">
             <div class="title" style="margin-bottom: 24px;"><h1 style="font-size:28px;">系统工具</h1></div>
+
             <div class="glass tool-item" onclick="go('apps', 3)">
-                <div style="display:flex; align-items:center;"><div class="card-icon">📱</div><div class="card-text"><h3>选择生效领地</h3><p>勾选你需要魔法生效的应用</p></div></div>
+                <div style="display:flex; align-items:center;">
+                    <div class="card-icon">📱</div>
+                    <div class="card-text"><h3>选择生效领地</h3><p>勾选你需要魔法生效的应用</p></div>
+                </div>
                 <div class="badge-pink" id="tools-app-count">已选 0 个</div>
             </div>
+
             <div class="glass tool-item" onclick="openBatterySettings()">
-                <div style="display:flex; align-items:center;"><div class="card-icon" style="color:#4CAF50;">🔋</div><div class="card-text"><h3>电池优化</h3><p>加入白名单，防止被杀后台</p></div></div><div class="tool-arrow">›</div>
+                <div style="display:flex; align-items:center;"><div class="card-icon" style="color:#4CAF50;">🔋</div><div class="card-text"><h3>电池优化</h3><p>加入白名单，防止被系统杀后台</p></div></div>
+                <div class="tool-arrow">›</div>
             </div>
+
+            <div class="glass tool-item" onclick="openAutoStartSettings()">
+                <div style="display:flex; align-items:center;"><div class="card-icon" style="color:#2196F3;">🚀</div><div class="card-text"><h3>自启动权限</h3><p>允许应用在后台自启动</p></div></div>
+                <div class="tool-arrow">›</div>
+            </div>
+
             <div class="glass tool-item" onclick="openAccessibilitySettings()">
-                <div style="display:flex; align-items:center;"><div class="card-icon" style="color:#FF9800;">🧑‍🦽</div><div class="card-text"><h3>无障碍服务</h3><p>重启手机后需重新开启</p></div></div><div class="tool-arrow">›</div>
+                <div style="display:flex; align-items:center;"><div class="card-icon" style="color:#FF9800;">🧑‍🦽</div><div class="card-text"><h3>无障碍服务</h3><p>重启手机后需重新开启</p></div></div>
+                <div class="tool-arrow">›</div>
+            </div>
+
+            <div class="glass tool-item" onclick="openNotificationSettings()">
+                <div style="display:flex; align-items:center;"><div class="card-icon" style="color:#F44336;">🔔</div><div class="card-text"><h3>通知权限</h3><p>确保前台服务保活稳定</p></div></div>
+                <div class="tool-arrow">›</div>
             </div>
         </div>
     </div>
 
+    <!-- 5. 关于 -->
     <div id="p-about" class="page">
         <div class="scroll">
             <div class="title" style="margin-bottom: 24px;"><h1 style="font-size:28px;">关于 WeaiText</h1></div>
+            
             <div class="glass about-hero">
-                <div class="avatar"><img src="avatar.png" onerror="this.style.display='none'; this.parentNode.innerHTML='🐾';"></div>
-                <h2>WeaiText</h2><p>可爱魔法文本替换工具</p><div class="version-badge">Version 1.0.0</div>
+                <div class="avatar">
+                    <img src="avatar.png" onerror="this.style.display='none'; this.parentNode.innerHTML='🐾';">
+                </div>
+                <h2>WeaiText</h2>
+                <p>可爱魔法文本替换工具</p>
+                <div class="version-badge">Version 1.0.0</div>
             </div>
+
+            <div class="section-title" style="margin-top: 0;">应用信息</div>
+            <div class="glass-list info-list" style="margin-bottom: 24px;">
+                <div class="info-item"><span>版本号</span><span>v1.0.0</span></div>
+                <div class="info-item"><span>开发者</span><span>Asia.C</span></div>
+                <div class="info-item"><span>构建时间</span><span>2026-10-17</span></div>
+            </div>
+
+            <div class="section-title">功能说明</div>
+            <div class="glass-list info-list" style="margin-bottom: 24px;">
+                <div class="info-item"><span>自定义文本替换规则</span></div>
+                <div class="info-item"><span>自动追加后缀文字</span></div>
+                <div class="info-item"><span>指定应用生效领地</span></div>
+                <div class="info-item"><span>无痕后台模式</span></div>
+            </div>
+
             <div class="section-title">其他</div>
-            <div class="glass action-card" onclick="openLicense()">
-                <div><h3>开源许可</h3><p>查看开源协议</p></div><div class="tool-arrow">›</div>
+            
+            <div class="glass action-card" onclick="openFeedback()">
+                <div>
+                    <h3>反馈与建议</h3>
+                    <p>遇到bug或者想要新功能欢迎反馈</p>
+                </div>
+                <div class="tool-arrow" style="color:var(--pink);">›</div>
             </div>
-            <div class="footer-text"><p>✨ WeaiText · Cute Magic ✨</p><p>祝您每一天都可可爱爱</p></div>
+
+            <div class="glass action-card" onclick="openLicense()">
+                <div>
+                    <h3>开源许可</h3>
+                    <p>查看开源协议</p>
+                </div>
+                <div class="tool-arrow">›</div>
+            </div>
+
+            <div class="glass action-card" onclick="openThanks()">
+                <div>
+                    <h3>致谢</h3>
+                    <p>感谢使用本喵的魔法工具 🐾</p>
+                </div>
+                <div class="tool-arrow">›</div>
+            </div>
+
+            <div class="footer-text">
+                <p>✨ WeaiText · Cute Magic ✨</p>
+                <p>祝您每一天都可可爱爱</p>
+            </div>
         </div>
     </div>
 
+    <!-- 底栏 -->
     <div class="nav" id="bottom-nav">
-        <div class="nav-btn active" data-target="home" onclick="go('home', 0)"><svg fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></div>
-        <div class="nav-btn" data-target="rules" onclick="go('rules', 1)"><svg fill="none" stroke="currentColor" stroke-width="2.5"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line></svg></div>
-        <div class="add-btn" onclick="openModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div>
-        <div class="nav-btn" data-target="tools" onclick="go('tools', 2)"><svg fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg></div>
-        <div class="nav-btn" data-target="about" onclick="go('about', 4)"><svg fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div>
+        <div class="nav-btn active" data-target="home" onclick="go('home', 0)">
+            <svg fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+        </div>
+        <div class="nav-btn" data-target="rules" onclick="go('rules', 1)">
+            <svg fill="none" stroke="currentColor" stroke-width="2.5"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line></svg>
+        </div>
+        
+        <div class="add-btn" onclick="openModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </div>
+        
+        <div class="nav-btn" data-target="tools" onclick="go('tools', 2)">
+            <svg fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+        </div>
+        <div class="nav-btn" data-target="about" onclick="go('about', 4)">
+            <svg fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        </div>
     </div>
 
+    <!-- 弹窗组 -->
     <div class="modal" id="addModal">
         <div class="modal-box">
             <h2 style="text-align: center; margin-bottom: 24px; font-weight: 900; font-size: 22px;">新增魔法规则</h2>
@@ -216,63 +464,191 @@
         </div>
     </div>
 
+    <div class="modal" id="feedbackModal">
+        <div class="modal-box">
+            <h2 style="text-align: center; margin-bottom: 16px; font-weight: 900; font-size: 22px;">反馈与建议</h2>
+            <p style="color:var(--text-sub); font-size:14px; line-height:1.6; text-align:center; margin-bottom:20px; font-weight:600;">
+                如果在使用中遇到 Bug，或者想要新的魔法功能，欢迎联系本喵：
+            </p>
+            <div style="display:flex; justify-content:center; align-items:center; background:rgba(255,255,255,0.6); padding:16px; border-radius:18px; border:1px solid rgba(255,255,255,0.8);">
+                <b style="color:var(--pink); font-size:16px; font-family:monospace;">3525643975@qq.com</b>
+                <button class="btn-copy" onclick="copyEmail()" style="margin-left:16px;">一键复制</button>
+            </div>
+            <button class="btn-ok" onclick="closeModal('feedbackModal')">我知道了</button>
+        </div>
+    </div>
+
     <div class="modal" id="licenseModal">
         <div class="modal-box">
             <h2 style="text-align: center; margin-bottom: 16px; font-weight: 900; font-size: 22px;">开源许可</h2>
-            <div style="background:rgba(255,255,255,0.3); padding:16px; border-radius:16px; font-size:12px; color:var(--text-sub); flex:1; overflow-y:auto; line-height:1.6; text-align:left; border:1px solid rgba(255,255,255,0.6);">MIT License...</div>
+            <div style="background:rgba(255,255,255,0.5); padding:16px; border-radius:16px; font-size:12px; color:var(--text-sub); flex:1; overflow-y:auto; line-height:1.6; text-align:left; white-space: pre-wrap; border:1px solid rgba(255,255,255,0.8);">
+MIT License
+...
+            </div>
             <button class="btn-ok" onclick="closeModal('licenseModal')">关闭</button>
         </div>
     </div>
 
+    <div class="modal" id="thanksModal">
+        <div class="modal-box">
+            <h2 style="text-align: center; margin-bottom: 16px; font-weight: 900; font-size: 22px;">致谢</h2>
+            <p style="color:var(--text-sub); font-size:14px; line-height:1.8; text-align:center; font-weight:600;">
+                感谢所有开源作者的辛勤付出！<br>
+                也感谢一直支持本喵的你 🐾<br>
+                <span style="color:var(--pink); font-weight:800; margin-top:12px; display:inline-block; font-size: 16px;">WeaiText · Cute Magic</span>
+            </p>
+            <button class="btn-ok" onclick="closeModal('thanksModal')">关闭</button>
+        </div>
+    </div>
+
     <script>
+        // ================= 核心数据 =================
         let state = {
             rules: [{ from: '宝宝', to: '蠢喵' }, { from: '她', to: '喵酱' }],
             apps: [
-                { name: '微信', pkg: 'com.tencent.mm' }, { name: 'QQ', pkg: 'com.tencent.mobileqq' },
-                { name: '哔哩哔哩', pkg: 'tv.danmaku.bili' }, { name: '抖音', pkg: 'com.ss.android.ugc.aweme' }
+                { name: '123云盘', pkg: 'com.mfcloudcalculate.networkdisk' },
+                { name: '4399游戏盒', pkg: 'com.m4399.gamecenter' },
+                { name: '百度网盘', pkg: 'com.baidu.netdisk' },
+                { name: '笔记', pkg: 'com.miui.notes' },
+                { name: '哔哩哔哩', pkg: 'tv.danmaku.bili' },
+                { name: '超级小爱', pkg: 'com.miui.voiceassistProxy' },
+                { name: '微信', pkg: 'com.tencent.mm' },
+                { name: 'QQ', pkg: 'com.tencent.mobileqq' },
+                { name: '抖音', pkg: 'com.ss.android.ugc.aweme' }
             ],
-            targets: new Set(), appendEnabled: true, bgEnabled: false
+            targets: new Set(), 
+            appendEnabled: true,
+            bgEnabled: false
         };
+
         const pages = ['home', 'rules', 'tools', 'apps', 'about'];
+        let currentPageIndex = 0;
+
+        // 【原生桥接核心】
         const NativeBridge = window.Android || null;
 
         function syncToNative() {
             const config = {
-                rules: state.rules, targets: Array.from(state.targets),
+                rules: state.rules,
+                targets: Array.from(state.targets),
                 appendEnabled: state.appendEnabled,
                 suffix: document.getElementById('suffix-input') ? document.getElementById('suffix-input').value : '喵~'
             };
-            if (NativeBridge) NativeBridge.saveConfig(JSON.stringify(config));
+            if (NativeBridge) {
+                NativeBridge.saveConfig(JSON.stringify(config));
+            }
         }
 
         function go(pageId, index) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
             document.getElementById('p-' + pageId).classList.add('active');
+            currentPageIndex = pages.indexOf(pageId);
+
             let navTarget = pageId === 'apps' ? 'tools' : pageId;
             const nav = document.querySelector(`.nav-btn[data-target="${navTarget}"]`);
             if(nav) nav.classList.add('active');
+
             if(pageId === 'home') renderHome();
             if(pageId === 'rules') renderRules();
             if(pageId === 'apps') renderApps();
             if(pageId === 'tools') updateCounts();
         }
 
+        // ================= 底部导航栏长按滑动切页 =================
+        const navContainer = document.getElementById('bottom-nav');
+        let navIsDragging = false;
+        let navStartX = 0;
+        let navTimer = null;
+
+        navContainer.addEventListener('pointerdown', (e) => {
+            navStartX = e.clientX;
+            navIsDragging = false;
+            navTimer = setTimeout(() => {
+                navIsDragging = true;
+                if(navigator.vibrate) navigator.vibrate(20);
+                navContainer.style.background = 'rgba(255, 255, 255, 0.85)'; 
+            }, 200);
+        });
+
+        navContainer.addEventListener('pointermove', (e) => {
+            if (!navIsDragging) {
+                if (Math.abs(e.clientX - navStartX) > 10) clearTimeout(navTimer);
+                return;
+            }
+            const rect = navContainer.getBoundingClientRect();
+            let percent = (e.clientX - rect.left) / rect.width;
+            percent = Math.max(0, Math.min(1, percent));
+            let index = Math.floor(percent * pages.length);
+            if (index >= pages.length) index = pages.length - 1;
+            const targetPage = pages[index];
+            if (document.getElementById('p-' + targetPage) && !document.getElementById('p-' + targetPage).classList.contains('active')) {
+                go(targetPage);
+            }
+        });
+
+        navContainer.addEventListener('pointerup', () => {
+            clearTimeout(navTimer);
+            navIsDragging = false;
+            navContainer.style.background = 'rgba(255, 255, 255, 0.75)';
+        });
+
+        navContainer.addEventListener('pointercancel', () => {
+            clearTimeout(navTimer);
+            navIsDragging = false;
+            navContainer.style.background = 'rgba(255, 255, 255, 0.75)';
+        });
+
+        // ================= 交互逻辑 =================
+        function toggleMainSwitch() { document.getElementById('mainToggle').classList.toggle('on'); }
+
+        function toggleBgMode() {
+            state.bgEnabled = !state.bgEnabled;
+            const el = document.getElementById('bgToggle');
+            const eyeOpen = document.getElementById('eyeOpen');
+            const eyeClosed = document.getElementById('eyeClosed');
+            const desc = document.getElementById('bgModeDesc');
+            
+            el.classList.toggle('on', state.bgEnabled);
+            if (state.bgEnabled) {
+                eyeOpen.style.display = 'none';
+                eyeClosed.style.display = 'block';
+                desc.innerText = '已开启隐身，多任务卡片已隐藏';
+            } else {
+                eyeOpen.style.display = 'block';
+                eyeClosed.style.display = 'none';
+                desc.innerText = '退出即隐身，不占用多任务';
+            }
+        }
+
         function renderHome() {
             const recentList = document.getElementById('home-recent-list');
-            let html = '';
-            if (state.rules.length === 0) html = '<div style="text-align:center; color:var(--text-sub); font-size:14px; padding:15px 0;">暂无记录</div>';
-            else state.rules.slice(-3).reverse().forEach(rule => html += `<div class="item"><span>${rule.from}</span><span class="arrow">➔</span><span>${rule.to}</span></div>`);
-            recentList.innerHTML = html;
+            if (state.rules.length === 0) {
+                recentList.innerHTML = '<div style="text-align:center; color:var(--text-sub); font-size:14px; padding:15px 0;">暂无记录</div>';
+            } else {
+                let html = '';
+                state.rules.slice(-3).reverse().forEach(rule => {
+                    html += `<div class="item"><span>${rule.from}</span><span class="arrow">➔</span><span>${rule.to}</span></div>`;
+                });
+                recentList.innerHTML = html;
+            }
             updateCounts();
         }
 
         function renderRules() {
             const rulesList = document.getElementById('rules-list');
-            if (state.rules.length === 0) { rulesList.innerHTML = '<div style="text-align:center; color:var(--text-sub); padding:20px;">暂无规则</div>'; return; }
+            if (state.rules.length === 0) {
+                rulesList.innerHTML = '<div style="text-align:center; color:var(--text-sub); padding:20px;">暂无规则，点击下方加号添加</div>';
+                return;
+            }
             let html = '';
             state.rules.forEach((rule, index) => {
-                html += `<div class="item"><span>${rule.from} <span class="arrow">➔</span> ${rule.to}</span><span class="btn-del" onclick="deleteRule(${index})">✕</span></div>`;
+                html += `
+                <div class="item">
+                    <span>${rule.from} <span class="arrow">➔</span> ${rule.to}</span>
+                    <span class="btn-del" onclick="deleteRule(${index})">✕</span>
+                </div>`;
             });
             rulesList.innerHTML = html;
             updateCounts();
@@ -281,80 +657,181 @@
         function renderApps() {
             const appsList = document.getElementById('apps-list');
             const keyword = document.getElementById('search-input').value.toLowerCase();
-            let html = '', count = 0;
+            let html = '';
+            let count = 0;
+
             state.apps.forEach(app => {
                 if (keyword && !app.name.toLowerCase().includes(keyword) && !app.pkg.toLowerCase().includes(keyword)) return;
                 count++;
                 const isSelected = state.targets.has(app.pkg) ? 'selected' : '';
-                html += `<div class="app-card ${isSelected}" onclick="toggleApp('${app.pkg}', this)"><div><div class="app-name">${app.name}</div><div class="app-pkg">${app.pkg}</div></div><div class="check-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"></polyline></svg></div></div>`;
+                html += `
+                <div class="app-card ${isSelected}" onclick="toggleApp('${app.pkg}', this)">
+                    <div>
+                        <div class="app-name">${app.name}</div>
+                        <div class="app-pkg">${app.pkg}</div>
+                    </div>
+                    <div class="check-circle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                </div>`;
             });
+            
             if (count === 0) html = '<div style="text-align:center; color:var(--text-sub); padding:20px;">未找到应用</div>';
             appsList.innerHTML = html;
             updateCounts();
         }
 
         function toggleApp(pkg, element) {
-            if (state.targets.has(pkg)) { state.targets.delete(pkg); element.classList.remove('selected'); } 
-            else { state.targets.add(pkg); element.classList.add('selected'); }
-            updateCounts(); syncToNative();
+            const isNowSelected = state.targets.has(pkg);
+            if (isNowSelected) {
+                state.targets.delete(pkg);
+                element.classList.remove('selected');
+            } else {
+                state.targets.add(pkg);
+                element.classList.add('selected');
+            }
+            updateCounts(); 
+            syncToNative(); // 同步至原生
         }
 
         function syncSuffix(val) {
-            const suffix = val || '喵~';
+            const suffix = val || '喵';
             document.getElementById('append-title').innerText = `后缀「${suffix}」`;
             document.getElementById('append-preview').innerText = `预览：今天很开心${suffix}`;
-            syncToNative();
+            syncToNative(); // 同步至原生
         }
 
         function toggleAppend() {
             state.appendEnabled = !state.appendEnabled;
-            document.getElementById('append-toggle').classList.toggle('on', state.appendEnabled);
-            document.getElementById('append-input-wrap').style.display = state.appendEnabled ? 'block' : 'none';
-            document.getElementById('append-desc').innerText = state.appendEnabled ? '已开启自动追加' : '关闭中';
-            syncToNative();
+            const toggle = document.getElementById('append-toggle');
+            const wrap = document.getElementById('append-input-wrap');
+            const desc = document.getElementById('append-desc');
+            const icon = document.getElementById('tag-icon');
+            toggle.classList.toggle('on', state.appendEnabled);
+            if (state.appendEnabled) {
+                wrap.style.display = 'block';
+                desc.innerText = '已开启自动追加';
+                icon.style.display = 'flex';
+            } else {
+                wrap.style.display = 'none';
+                desc.innerText = '关闭中';
+                icon.style.display = 'none';
+            }
+            syncToNative(); // 同步至原生
         }
 
-        function deleteRule(index) { state.rules.splice(index, 1); renderRules(); syncToNative(); }
-        function clearRules() { if (confirm('清空所有规则？')) { state.rules = []; renderRules(); syncToNative(); } }
+        function deleteRule(index) {
+            state.rules.splice(index, 1);
+            renderRules();
+            syncToNative(); // 同步至原生
+        }
+
+        function clearRules() {
+            if (confirm('确定要清空所有规则吗？')) {
+                state.rules = [];
+                renderRules();
+                syncToNative(); // 同步至原生
+            }
+        }
+
         function updateCounts() {
             document.getElementById('home-rule-count').innerText = state.rules.length;
             document.getElementById('home-app-count').innerText = state.targets.size;
             document.getElementById('apps-page-count').innerText = `已选 ${state.targets.size} 个`;
             document.getElementById('tools-app-count').innerText = `已选 ${state.targets.size} 个`;
         }
-        
+
         function openModal() { document.getElementById('addModal').classList.add('active'); }
+        function openFeedback() { document.getElementById('feedbackModal').classList.add('active'); }
         function openLicense() { document.getElementById('licenseModal').classList.add('active'); }
+        function openThanks() { document.getElementById('thanksModal').classList.add('active'); }
+
         function closeModal(id) { 
             document.getElementById(id).classList.remove('active'); 
-            if (id === 'addModal') { document.getElementById('input-from').value = ''; document.getElementById('input-to').value = ''; }
+            if (id === 'addModal') {
+                document.getElementById('input-from').value = '';
+                document.getElementById('input-to').value = '';
+            }
         }
+
         function addRule() {
             const from = document.getElementById('input-from').value.trim();
             const to = document.getElementById('input-to').value.trim();
-            if (!from || !to) return alert('请填写完整！');
-            state.rules.push({ from, to }); closeModal('addModal'); renderRules(); go('rules', 1); syncToNative();
+            if (!from || !to) { alert('请填写完整！'); return; }
+            state.rules.push({ from, to });
+            closeModal('addModal');
+            renderRules(); 
+            go('rules', 1);
+            syncToNative(); // 同步至原生
         }
-        function toggleMainSwitch() { document.getElementById('mainToggle').classList.toggle('on'); }
-        function toggleBgMode() { state.bgEnabled = !state.bgEnabled; document.getElementById('bgToggle').classList.toggle('on', state.bgEnabled); }
 
-        function openAccessibilitySettings() { if (NativeBridge) NativeBridge.openAccessibilitySettings(); }
-        function openBatterySettings() { if (NativeBridge) NativeBridge.openBatterySettings(); }
+        function copyEmail() {
+            const email = "3525643975@qq.com";
+            navigator.clipboard.writeText(email).then(() => {
+                alert('邮箱已复制到剪贴板喵~');
+            }).catch(() => {
+                alert('复制失败，请手动长按复制');
+            });
+        }
 
+        // 【原生设置跳转】
+        function openAccessibilitySettings() {
+            if (NativeBridge) NativeBridge.openAccessibilitySettings();
+            else alert('请在 App 内使用此功能');
+        }
+        function openBatterySettings() {
+            if (NativeBridge) NativeBridge.openBatterySettings();
+            else alert('请在 App 内使用此功能');
+        }
+        function openAutoStartSettings() {
+            alert('不同手机自启动设置路径不同，请前往手机管家的应用管理开启');
+        }
+        function openNotificationSettings() {
+            alert('请前往系统设置 -> 通知管理，允许本应用发送通知');
+        }
+
+        // ================= 魔法点击光点特效 =================
+        document.addEventListener('pointerdown', function(e) {
+            const wave = document.createElement('div');
+            wave.className = 'click-wave';
+            wave.style.left = e.clientX + 'px';
+            wave.style.top = e.clientY + 'px';
+            wave.style.width = '40px';
+            wave.style.height = '40px';
+            document.body.appendChild(wave);
+            setTimeout(() => wave.remove(), 400);
+        });
+
+        // ================= 页面加载初始化 =================
         window.onload = () => {
+            // 1. 从原生读取配置
             if (NativeBridge && NativeBridge.loadConfig) {
                 const savedConfig = NativeBridge.loadConfig();
                 if (savedConfig && savedConfig !== "") {
                     try {
                         const parsed = JSON.parse(savedConfig);
                         state.rules = parsed.rules || state.rules;
-                        if (parsed.targets && parsed.targets.length > 0) state.targets = new Set(parsed.targets);
+                        if (parsed.targets && parsed.targets.length > 0) {
+                            state.targets = new Set(parsed.targets);
+                        }
                         state.appendEnabled = parsed.appendEnabled !== undefined ? parsed.appendEnabled : true;
-                        if (parsed.suffix) document.getElementById('suffix-input').value = parsed.suffix;
-                    } catch(e) {}
+                        if (parsed.suffix && document.getElementById('suffix-input')) {
+                            document.getElementById('suffix-input').value = parsed.suffix;
+                        }
+                    } catch(e) { console.error("Config parse error", e); }
                 }
             }
-            renderHome(); toggleAppend(); syncSuffix(document.getElementById('suffix-input').value); syncToNative();
+            
+            // 2. 初始化渲染 UI
+            renderHome();
+            toggleAppend(); 
+            syncSuffix(document.getElementById('suffix-input').value);
+            document.getElementById('bgToggle').classList.remove('on');
+            document.getElementById('eyeOpen').style.display = 'block';
+            document.getElementById('eyeClosed').style.display = 'none';
+
+            // 3. 页面启动强制同步一次，确保原生端有数据
+            syncToNative();
         };
     </script>
 </body>
