@@ -221,7 +221,7 @@
             100% { transform: scale(1) rotate(0); opacity: 1; }
         }
 
-        /* ================= 弹窗系统 (完全贴合主页风格) ================= */
+        /* ================= 弹窗系统 ================= */
         .modal { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0, 0, 0, 0.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -317,6 +317,7 @@
                         <div><h3>📱 选择生效领地</h3><p>勾选你需要魔法生效的应用</p></div>
                         <div class="btn-text" style="font-size:13px; padding: 6px 12px;" id="toolSelectedCount">已选 0 个</div>
                     </div>
+                    <!-- 修复了这些点击事件 -->
                     <div class="liquid-glass sub-module" style="margin:0;" onclick="openBatterySettings()">
                         <div><h3>🔋 电池优化</h3><p>加入白名单，防止被系统杀后台</p></div><div style="color:#555; font-size:20px; font-weight:bold;">›</div>
                     </div>
@@ -545,6 +546,7 @@ SOFTWARE.</div>
         const navItems = document.querySelectorAll('.nav-btn');
 
         function initAppData() {
+            // 从原生获取应用列表
             if (window.Android && window.Android.getInstalledApps) {
                 try {
                     const nativeAppsStr = window.Android.getInstalledApps();
@@ -553,8 +555,10 @@ SOFTWARE.</div>
                         apps = nativeApps.map(app => ({ name: app.name, pkg: app.pkg, selected: false }));
                         apps.sort((a, b) => a.name.localeCompare(b.name));
                     }
-                } catch (e) { console.error(e); }
+                } catch (e) { console.error("获取应用列表失败", e); }
             }
+            
+            // 如果没有获取到，给个默认保底
             if (apps.length === 0) { apps = [{ name: '微信', pkg: 'com.tencent.mm', selected: true }]; }
             if (!loadConfig()) { rules = [{ from: '我', to: '本喵' }]; saveConfig(); }
             renderAll(); updateAppendUI();
@@ -609,11 +613,13 @@ SOFTWARE.</div>
         }
 
         function buildConfig() { return { enabled: isModuleActive, bgMode: isBackgroundMode, targets: apps.filter(a => a.selected).map(a => a.pkg), rules: rules, appendMagic: appendMagic }; }
+        
         function saveConfig() {
             const cfg = JSON.stringify(buildConfig(), null, 2);
             try { localStorage.setItem('weaitext_cfg', cfg); } catch(e) {}
             if (window.Android && window.Android.saveConfig) { window.Android.saveConfig(cfg); }
         }
+        
         function loadConfig() {
             let raw = '';
             if (window.Android && window.Android.loadConfig) { try { raw = window.Android.loadConfig(); } catch(e) {} }
@@ -637,10 +643,26 @@ SOFTWARE.</div>
             } catch(e) { return false; }
         }
 
-        function openBatterySettings() { if (window.Android && window.Android.openBatterySettings) window.Android.openBatterySettings(); else showToast("请在系统设置中允许后台运行"); }
-        function openAccessibilitySettings() { if (window.Android && window.Android.openAccessibilitySettings) window.Android.openAccessibilitySettings(); else showToast("请手动开启无障碍服务"); }
-        function openAutoStartSettings() { if (window.Android && window.Android.openAppDetailsSettings) window.Android.openAppDetailsSettings(); else showToast("请手动允许自启动"); }
-        function openNotificationSettings() { if (window.Android && window.Android.openAppDetailsSettings) window.Android.openAppDetailsSettings(); else showToast("请手动允许通知权限"); }
+        // ================= 原生桥接跳转方法 =================
+        function openBatterySettings() { 
+            if (window.Android && window.Android.openBatterySettings) window.Android.openBatterySettings(); 
+            else showToast("请在系统设置中允许后台运行"); 
+        }
+        
+        function openAccessibilitySettings() { 
+            if (window.Android && window.Android.openAccessibilitySettings) window.Android.openAccessibilitySettings(); 
+            else showToast("请手动开启无障碍服务"); 
+        }
+        
+        function openAutoStartSettings() { 
+            if (window.Android && window.Android.openAutoStartSettings) window.Android.openAutoStartSettings(); 
+            else showToast("请手动允许自启动"); 
+        }
+        
+        function openNotificationSettings() { 
+            if (window.Android && window.Android.openNotificationSettings) window.Android.openNotificationSettings(); 
+            else showToast("请手动允许通知权限"); 
+        }
 
         function renderRecentRules() {
             const container = document.getElementById('recentRules');
@@ -659,7 +681,6 @@ SOFTWARE.</div>
             `).join('');
         }
         
-        // ================= 核心动画优化：点击时不重排 =================
         function renderApps(filterText = '') {
             const container = document.getElementById('appList');
             let selectedCount = 0;
@@ -670,7 +691,6 @@ SOFTWARE.</div>
                 if (app.selected) selectedCount++;
                 const originalIndex = apps.findIndex(a => a.pkg === app.pkg);
                 
-                // 传入 this 以便原地修改样式触发动画
                 return `
                     <div class="app-card ${app.selected ? 'selected' : ''}" onclick="toggleApp(${originalIndex}, this)">
                         <div>
@@ -687,17 +707,11 @@ SOFTWARE.</div>
             document.getElementById('appsStatus').innerText = `已选 ${selectedCount} 个`;
         }
 
-        // 接收 element，直接修改 class 触发 CSS 动画，避免重排销毁元素
         function toggleApp(index, element) { 
             apps[index].selected = !apps[index].selected; 
-            
-            if (apps[index].selected) {
-                element.classList.add('selected');
-            } else {
-                element.classList.remove('selected');
-            }
+            if (apps[index].selected) { element.classList.add('selected'); } 
+            else { element.classList.remove('selected'); }
 
-            // 更新角标数字
             let selectedCount = apps.filter(a => a.selected).length;
             document.getElementById('appCount').innerText = selectedCount;
             document.getElementById('toolSelectedCount').innerText = `已选 ${selectedCount} 个`;
@@ -729,6 +743,7 @@ SOFTWARE.</div>
             renderRecentRules(); renderConfigRules(); renderApps(document.getElementById('appSearch').value);
         }
 
+        // 启动！
         initAppData();
     </script>
 </body>
