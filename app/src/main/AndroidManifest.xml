@@ -20,7 +20,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="WeaiText"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MeowAssistant"> <!-- 注意这里换成原版的主题，如果没有就删掉这一行 -->
+        android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar">
         
         <!-- 启动页：改为 WebUIActivity -->
         <activity
