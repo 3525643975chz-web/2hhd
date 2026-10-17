@@ -17,7 +17,7 @@ public class CatConfig {
 
     public List<Rule> rules = new ArrayList<>();
     public Set<String> targets = new HashSet<>();
-    public boolean appendEnabled = false; // 默认关闭
+    public boolean appendEnabled = false;
     public String suffix = "喵";
 
     public static CatConfig load(Context ctx) {
@@ -28,15 +28,11 @@ public class CatConfig {
             try {
                 JSONObject json = new JSONObject(jsonStr);
                 
-                // 兼容前端传来的结构
+                // 匹配前端传来的结构 appendMagic
                 if (json.has("appendMagic")) {
                     JSONObject magic = json.getJSONObject("appendMagic");
                     cfg.appendEnabled = magic.optBoolean("enabled", false);
                     cfg.suffix = magic.optString("suffix", "喵");
-                } else {
-                    // 兼容旧版
-                    cfg.appendEnabled = json.optBoolean("appendEnabled", false);
-                    cfg.suffix = json.optString("suffix", "喵");
                 }
 
                 JSONArray targetsArr = json.optJSONArray("targets");
