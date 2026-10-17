@@ -9,7 +9,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         
-        <!-- 将主入口设置为我们的 WebView MainActivity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -20,10 +19,8 @@
             </intent-filter>
         </activity>
 
-        <!-- 注册原有的辅助 Activity (防止你原项目代码里其他地方引用报错) -->
         <activity android:name=".RewriteActivity" android:exported="false" />
 
-        <!-- 注册无障碍服务 -->
         <service
             android:name=".MeowAccessibilityService"
             android:exported="true"
@@ -36,7 +33,6 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
-        <!-- 注册磁贴服务 -->
         <service
             android:name=".RewriteTileService"
             android:exported="true"
@@ -48,5 +44,4 @@
             </intent-filter>
         </service>
     </application>
-
 </manifest>
