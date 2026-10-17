@@ -8,10 +8,10 @@ android {
 
     defaultConfig {
         applicationId "com.meow.assistant"
-        minSdk 23
+        minSdk 24
         targetSdk 34
-        versionCode 6
-        versionName "1.2.1"
+        versionCode 1
+        versionName "1.0"
     }
 
     buildTypes {
@@ -20,7 +20,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -28,5 +27,7 @@ android {
 }
 
 dependencies {
-    // 该工程仅使用原生 Android 框架 API，无第三方依赖
+    // 关键依赖，之前报错就是因为缺这个
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
 }
