@@ -54,7 +54,7 @@ public class MeowAccessibilityService extends AccessibilityService {
 
         if (currentText.isEmpty()) return;
 
-        // 如果等于上次处理完的文本，说明是自己触发的，拦截
+        // 防套娃拦截
         if (currentText.equals(lastProcessedText)) {
             return; 
         }
@@ -76,7 +76,6 @@ public class MeowAccessibilityService extends AccessibilityService {
         isProcessing = true;
         lastProcessedText = processedText; 
         
-        // 记录光标位置
         int selectionStart = node.getTextSelectionStart();
         int selectionEnd = node.getTextSelectionEnd();
 
@@ -84,7 +83,7 @@ public class MeowAccessibilityService extends AccessibilityService {
         arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, processedText);
         boolean success = node.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
         
-        // 【核心修复】如果普通设置失败（例如微信），启用剪贴板粘贴大法
+        // 兼容微信等顽固应用，失败则用剪贴板
         if (!success) {
             ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
             ClipData clip = ClipData.newPlainText("weaitext", processedText);
@@ -93,13 +92,12 @@ public class MeowAccessibilityService extends AccessibilityService {
             node.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
             node.performAction(AccessibilityNodeInfo.ACTION_PASTE);
             
-            // 粘贴后，光标移到末尾
             Bundle selectionArgs = new Bundle();
             selectionArgs.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT, processedText.length());
             selectionArgs.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT, processedText.length());
             node.performAction(AccessibilityNodeInfo.ACTION_SET_SELECTION, selectionArgs);
         } else {
-            // 如果直接设置成功，尽量恢复原光标位置
+            // 恢复光标位置
             if (selectionStart >= 0 && selectionEnd >= 0) {
                 Bundle selectionArgs = new Bundle();
                 int newStart = Math.min(selectionStart + (processedText.length() - currentText.length()), processedText.length());
@@ -110,7 +108,6 @@ public class MeowAccessibilityService extends AccessibilityService {
             }
         }
         
-        // 延迟 500ms 解锁，给输入法和系统足够的反应时间
         handler.postDelayed(() -> isProcessing = false, 500);
     }
 
