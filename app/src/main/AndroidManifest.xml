@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.catpaw.kittytalk">
+    package="com.meow.assistant">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
-    <!-- 🌟 核心修复：向系统申请查看其他应用的权限 -->
+    <!-- 核心：向系统申请查看其他应用的权限，解决看不到微信的问题 -->
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
@@ -17,15 +17,16 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@mipmap/ic_launcher"
         android:label="WeaiText"
         android:supportsRtl="true"
-        android:theme="@style/Theme.QQReplyApp">
+        android:theme="@style/Theme.MeowAssistant"> <!-- 注意这里换成原版的主题，如果没有就删掉这一行 -->
         
+        <!-- 启动页：改为 WebUIActivity -->
         <activity
-            android:name=".LauncherActivity"
+            android:name=".WebUIActivity"
             android:exported="true"
-            android:windowDisablePreview="true" 
+            android:windowDisablePreview="true"
             android:configChanges="orientation|screenSize|keyboardHidden|uiMode">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,12 +34,12 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".LifelineService"
-            android:exported="false" />
+        <!-- 保留喵喵助手原版的 Activity 和 Service -->
+        <activity android:name=".MainActivity" android:exported="false" />
+        <activity android:name=".RewriteActivity" android:exported="false" />
 
         <service
-            android:name=".AutomationBridge"
+            android:name=".MeowAccessibilityService"
             android:exported="true"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
@@ -49,5 +50,6 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
+        <service android:name=".RewriteTileService" android:exported="true" />
     </application>
 </manifest>
