@@ -7,7 +7,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.webkit.JavascriptInterface;
@@ -31,7 +30,6 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 强制窗口背景透明，完美配合网页淡入
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
         webView = new WebView(this);
@@ -43,21 +41,17 @@ public class MainActivity extends Activity {
         settings.setAllowFileAccess(true);
         settings.setAllowContentAccess(true);
 
-        // 绑定 JS 桥接
         webView.addJavascriptInterface(new WebBridge(this), "AndroidBridge");
         webView.setWebViewClient(new WebViewClient());
         
-        // 加载 assets 里的网页
         webView.loadUrl("file:///android_asset/index.html");
         
         setContentView(webView);
 
-        // 状态栏透明
         getWindow().setNavigationBarColor(Color.TRANSPARENT);
         getWindow().setStatusBarColor(Color.TRANSPARENT);
     }
 
-    // 核心桥梁（全部使用基础 Activity 传参，彻底告别找不到符号报错）
     private class WebBridge {
         private Activity mActivity;
 
@@ -76,21 +70,12 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
-        public void openBatterySettings() {
-            mActivity.runOnUiThread(new Runnable() {
-                public void run() {
-                    Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-                    mActivity.startActivity(intent);
-                }
-            });
-        }
-
-        @JavascriptInterface
         public String getInstalledApps() {
             try {
                 PackageManager pm = mActivity.getPackageManager();
                 Intent intent = new Intent(Intent.ACTION_MAIN, null);
                 intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                // 核心：查询所有带有启动图标的App
                 List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
 
                 JSONArray jsonArray = new JSONArray();
@@ -112,22 +97,6 @@ public class MainActivity extends Activity {
             } catch (Exception e) {
                 return "[]";
             }
-        }
-
-        @JavascriptInterface
-        public void saveConfig(String json) {
-            // 存到本地，供引擎读取
-            mActivity.getSharedPreferences("weai_cfg", Context.MODE_PRIVATE).edit().putString("data", json).apply();
-            mActivity.runOnUiThread(new Runnable() {
-                public void run() {
-                    Toast.makeText(mActivity, "规则保存成功", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-
-        @JavascriptInterface
-        public String loadConfig() {
-            return mActivity.getSharedPreferences("weai_cfg", Context.MODE_PRIVATE).getString("data", "");
         }
     }
 }
