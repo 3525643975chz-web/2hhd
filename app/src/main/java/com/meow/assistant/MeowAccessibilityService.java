@@ -9,7 +9,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 
 public class MeowAccessibilityService extends AccessibilityService {
     private CatConfig config = new CatConfig();
-    private boolean isProcessing = false; // 防死循环
+    private boolean isProcessing = false;
     private Handler handler = new Handler(Looper.getMainLooper());
 
     @Override
