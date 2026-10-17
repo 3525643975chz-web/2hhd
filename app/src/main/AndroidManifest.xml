@@ -1,37 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.meow.assistant">
-
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
-
-    <!-- 🌟 最暴力的全量查询声明 -->
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.MAIN" />
-        </intent>
-    </queries>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="WeaiText"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar"> 
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         
+        <!-- 将主入口设置为我们的 WebView MainActivity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:windowDisablePreview="true"
-            android:configChanges="orientation|screenSize|keyboardHidden|uiMode">
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <!-- 注册原有的辅助 Activity (防止你原项目代码里其他地方引用报错) -->
+        <activity android:name=".RewriteActivity" android:exported="false" />
+
+        <!-- 注册无障碍服务 -->
         <service
             android:name=".MeowAccessibilityService"
             android:exported="true"
@@ -43,8 +35,18 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
         </service>
-        
-        <activity android:name=".RewriteActivity" android:exported="false" />
-        <service android:name=".RewriteTileService" android:exported="true" />
+
+        <!-- 注册磁贴服务 -->
+        <service
+            android:name=".RewriteTileService"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="WeaiText"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
     </application>
+
 </manifest>
