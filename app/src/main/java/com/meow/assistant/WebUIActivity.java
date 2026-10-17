@@ -1,6 +1,10 @@
 package com.meow.assistant;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -16,6 +20,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class WebUIActivity extends AppCompatActivity {
 
@@ -57,61 +65,60 @@ public class WebUIActivity extends AppCompatActivity {
     private class WebBridge {
         @JavascriptInterface
         public void openAccessibilitySettings() {
-            runOnUiThread(() -> {
+            WebUIActivity.this.runOnUiThread(() -> {
                 Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                startActivity(intent);
+                WebUIActivity.this.startActivity(intent);
             });
         }
 
         @JavascriptInterface
         public void openBatterySettings() {
-            runOnUiThread(() -> {
+            WebUIActivity.this.runOnUiThread(() -> {
                 Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-                startActivity(intent);
+                WebUIActivity.this.startActivity(intent);
             });
         }
 
         @JavascriptInterface
         public void openNotificationSettings() {
-            runOnUiThread(() -> {
+            WebUIActivity.this.runOnUiThread(() -> {
                 Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
-                intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
-                startActivity(intent);
+                intent.putExtra(Settings.EXTRA_APP_PACKAGE, WebUIActivity.this.getPackageName());
+                WebUIActivity.this.startActivity(intent);
             });
         }
 
         @JavascriptInterface
         public void openAutoStartSettings() {
-            runOnUiThread(() -> {
+            WebUIActivity.this.runOnUiThread(() -> {
                 Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                intent.setData(Uri.parse("package:" + getPackageName()));
-                startActivity(intent);
+                intent.setData(Uri.parse("package:" + WebUIActivity.this.getPackageName()));
+                WebUIActivity.this.startActivity(intent);
             });
         }
 
         @JavascriptInterface
         public void setBackgroundMode(boolean enabled) {
-            // 保存无痕模式配置（对应喵喵助手底层的 SharedPreferences）
-            getSharedPreferences("meow_prefs", MODE_PRIVATE).edit().putBoolean("bg_mode_hide", enabled).apply();
+            WebUIActivity.this.getSharedPreferences("meow_prefs", Context.MODE_PRIVATE).edit().putBoolean("bg_mode_hide", enabled).apply();
         }
 
         @JavascriptInterface
         public String getInstalledApps() {
             try {
-                android.content.pm.PackageManager pm = getPackageManager();
+                PackageManager pm = WebUIActivity.this.getPackageManager();
                 Intent intent = new Intent(Intent.ACTION_MAIN, null);
                 intent.addCategory(Intent.CATEGORY_LAUNCHER);
-                java.util.List<android.content.pm.ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
+                List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
 
                 JSONArray jsonArray = new JSONArray();
-                java.util.Set<String> addedPkgs = new java.util.HashSet<>();
+                Set<String> addedPkgs = new HashSet<>();
 
-                for (android.content.pm.ResolveInfo info : resolveInfos) {
+                for (ResolveInfo info : resolveInfos) {
                     String pkgName = info.activityInfo.packageName;
-                    if (pkgName.equals(getPackageName())) continue; // 排除自己
+                    if (pkgName.equals(WebUIActivity.this.getPackageName())) continue; // 排除自己
                     if (addedPkgs.contains(pkgName)) continue;
 
-                    android.content.pm.ApplicationInfo appInfo = pm.getApplicationInfo(pkgName, 0);
+                    ApplicationInfo appInfo = pm.getApplicationInfo(pkgName, 0);
                     JSONObject obj = new JSONObject();
                     obj.put("name", pm.getApplicationLabel(appInfo).toString());
                     obj.put("pkg", pkgName);
@@ -127,19 +134,14 @@ public class WebUIActivity extends AppCompatActivity {
 
         @JavascriptInterface
         public void saveConfig(String json) {
-            // 这里接收前端的 JSON，由于不知道喵喵助手底层具体字段，我们先存到本地
-            // 后续如果发现替换不生效，需要在这里把 JSON 拆分，存进喵喵助手原生的 CatConfig 里
-            getSharedPreferences("meow_prefs", MODE_PRIVATE).edit().putString("weai_config", json).apply();
+            WebUIActivity.this.getSharedPreferences("meow_prefs", Context.MODE_PRIVATE).edit().putString("weai_config", json).apply();
             
-            // 尝试触发底层刷新（如果原项目有这个方法）
-            // MeowAccessibilityService.reloadConfig(); 
-            
-            runOnUiThread(() -> Toast.makeText(WebUIActivity.this, "规则已保存", Toast.LENGTH_SHORT).show());
+            WebUIActivity.this.runOnUiThread(() -> Toast.makeText(WebUIActivity.this, "规则已保存", Toast.LENGTH_SHORT).show());
         }
 
         @JavascriptInterface
         public String loadConfig() {
-            return getSharedPreferences("meow_prefs", MODE_PRIVATE).getString("weai_config", "");
+            return WebUIActivity.this.getSharedPreferences("meow_prefs", Context.MODE_PRIVATE).getString("weai_config", "");
         }
     }
 }
