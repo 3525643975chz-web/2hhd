@@ -17,6 +17,9 @@ public class CatConfig {
 
     public List<Rule> rules = new ArrayList<>();
     public Set<String> targets = new HashSet<>();
+    
+    // 控制总开关（必须加上这个，否则 Service 报错找不到）
+    public boolean enabled = true; 
     public boolean appendEnabled = false;
     public String suffix = "喵";
 
@@ -28,7 +31,9 @@ public class CatConfig {
             try {
                 JSONObject json = new JSONObject(jsonStr);
                 
-                // 匹配前端传来的结构 appendMagic
+                // 解析总开关
+                cfg.enabled = json.optBoolean("enabled", true);
+                
                 if (json.has("appendMagic")) {
                     JSONObject magic = json.getJSONObject("appendMagic");
                     cfg.appendEnabled = magic.optBoolean("enabled", false);
