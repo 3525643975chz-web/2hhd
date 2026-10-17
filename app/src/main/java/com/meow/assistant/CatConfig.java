@@ -1,4 +1,5 @@
-package com.weai.text;
+package com.meow.assistant;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -9,6 +10,7 @@ public class CatConfig {
         public String from;
         public String to;
     }
+
     public List<Rule> rules = new ArrayList<>();
     public Set<String> targets = new HashSet<>();
     public boolean appendEnabled = true;
