@@ -12,7 +12,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 
 public class MeowAccessibilityService extends AccessibilityService {
     private CatConfig config = new CatConfig();
-    private boolean isProcessing = false;
+    private boolean isProcessing = false; 
     private Handler handler = new Handler(Looper.getMainLooper());
 
     @Override
@@ -53,12 +53,12 @@ public class MeowAccessibilityService extends AccessibilityService {
         if (!originalText.equals(processedText)) {
             isProcessing = true;
             
-            // 方案1：尝试直接设置文本（大部分 App 有效，如 QQ）
+            // 1. 尝试直接设置文本 (QQ等原生输入框)
             Bundle arguments = new Bundle();
             arguments.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, processedText);
             boolean success = node.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
             
-            // 方案2：如果直接设置失败（如微信某些版本），使用剪贴板粘贴大法
+            // 2. 如果失败，使用剪贴板法 (微信等)
             if (!success) {
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("weaitext", processedText);
