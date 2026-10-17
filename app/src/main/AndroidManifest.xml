@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- 【必须添加】允许获取手机所有安装应用，否则列表是空的 -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
 
     <application
         android:allowBackup="true"
@@ -19,8 +23,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".RewriteActivity" android:exported="false" />
-
+        <!-- 注册无障碍服务 -->
         <service
             android:name=".MeowAccessibilityService"
             android:exported="true"
@@ -31,17 +34,6 @@
             <meta-data
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
-        </service>
-
-        <service
-            android:name=".RewriteTileService"
-            android:exported="true"
-            android:icon="@mipmap/ic_launcher"
-            android:label="WeaiText"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
-            <intent-filter>
-                <action android:name="android.service.quicksettings.action.QS_TILE" />
-            </intent-filter>
         </service>
     </application>
 </manifest>
