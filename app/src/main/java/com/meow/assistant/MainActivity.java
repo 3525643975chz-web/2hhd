@@ -1,6 +1,8 @@
 package com.meow.assistant;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -12,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -28,14 +31,27 @@ import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
     private WebView webView;
+    private boolean isIncognitoMode = false; // 记录无痕模式状态
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // 1. 创建通知渠道
+        // ================= 1. 全屏沉浸式适配 =================
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN 
+                | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR 
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        );
+        getWindow().setNavigationBarColor(android.graphics.Color.TRANSPARENT);
+        getWindow().getDecorView().setSystemUiVisibility(
+                getWindow().getDecorView().getSystemUiVisibility()
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+        );
+
         createNotificationChannel();
-        // 2. 申请通知权限 (Android 13+)
         requestNotificationPermission();
 
         webView = new WebView(this);
@@ -48,11 +64,38 @@ public class MainActivity extends AppCompatActivity {
         settings.setAllowFileAccess(true);   
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
-        // 注入 JS 接口
         webView.addJavascriptInterface(new WebAppInterface(MainActivity.this), "Android");
         webView.setWebViewClient(new WebViewClient());
         webView.loadUrl("file:///android_asset/index.html");
     }
+
+    // ================= 2. 核心：动态隐藏多任务卡片 =================
+    private void updateTaskState() {
+        ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        if (am != null) {
+            for (ActivityManager.AppTask task : am.getAppTasks()) {
+                // 开启无痕 -> 从多任务移除；关闭无痕 -> 恢复显示
+                task.setExcludeFromRecents(isIncognitoMode);
+            }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // 当用户按 Home 键或切换到其他 App 时，如果开了无痕，立刻把自己从多任务里踢出去
+        if (isIncognitoMode) {
+            updateTaskState();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // 保证再次回到 App 时状态正确
+        updateTaskState(); 
+    }
+    // ================================================================
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -77,12 +120,21 @@ public class MainActivity extends AppCompatActivity {
         
         public WebAppInterface(Context c) { mContext = c; }
 
-        // ================== 获取应用列表 ==================
+        // 接收前端的无痕模式开关指令
+        @JavascriptInterface
+        public void setBackgroundMode(boolean enabled) {
+            if (mContext instanceof MainActivity) {
+                ((MainActivity) mContext).runOnUiThread(() -> {
+                    ((MainActivity) mContext).isIncognitoMode = enabled;
+                    ((MainActivity) mContext).updateTaskState(); // 实时触发隐藏/恢复
+                });
+            }
+        }
+
         @JavascriptInterface
         public String getInstalledApps() {
             JSONArray jsonArray = new JSONArray();
             PackageManager pm = mContext.getPackageManager();
-            
             Intent intent = new Intent(Intent.ACTION_MAIN, null);
             intent.addCategory(Intent.CATEGORY_LAUNCHER);
             List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
@@ -103,13 +155,11 @@ public class MainActivity extends AppCompatActivity {
             return jsonArray.toString();
         }
 
-        // ================== 数据存取与保活服务控制 ==================
         @JavascriptInterface
         public void saveConfig(String jsonString) {
             mContext.getSharedPreferences("weai_config", Context.MODE_PRIVATE)
                     .edit().putString("config_json", jsonString).apply();
             
-            // 根据前端传来的总开关状态，控制前台保活服务的启动/停止
             try {
                 org.json.JSONObject json = new org.json.JSONObject(jsonString);
                 boolean isModuleActive = json.optBoolean("enabled", false);
@@ -124,11 +174,8 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     mContext.stopService(serviceIntent);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            } catch (Exception e) { e.printStackTrace(); }
 
-            // 通知无障碍服务重新加载配置
             Intent intent = new Intent(mContext, MeowAccessibilityService.class);
             intent.setAction("RELOAD_CONFIG");
             mContext.startService(intent);
@@ -140,7 +187,6 @@ public class MainActivity extends AppCompatActivity {
                     .getString("config_json", "");
         }
 
-        // ================== 权限跳转 ==================
         @JavascriptInterface
         public void openAccessibilitySettings() {
             try {
