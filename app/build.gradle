@@ -27,7 +27,6 @@ android {
 }
 
 dependencies {
-    // 关键依赖，之前报错就是因为缺这个
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
 }
